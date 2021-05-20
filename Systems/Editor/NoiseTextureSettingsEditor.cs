@@ -15,7 +15,6 @@ namespace DudeiNoise.Editor
 
 			private SerializedProperty exportFolderSP = null;
 			private SerializedProperty resolutionSP = null;
-			private SerializedProperty colorGradientSP = null;
 			private SerializedProperty filterModeSP = null;
 			
 			#endregion Variables
@@ -28,7 +27,6 @@ namespace DudeiNoise.Editor
 				
 				exportFolderSP = serializedObject.FindProperty("exportFolder");
 				resolutionSP = serializedObject.FindProperty("resolution");
-				colorGradientSP = serializedObject.FindProperty("colorGradient");
 				filterModeSP = serializedObject.FindProperty("filterMode");
 				
 			}
@@ -63,7 +61,6 @@ namespace DudeiNoise.Editor
 				
 	            EditorGUILayout.PropertyField(exportFolderSP);
 	            EditorGUILayout.PropertyField(resolutionSP);
-	            EditorGUILayout.PropertyField(colorGradientSP);
 	            EditorGUILayout.PropertyField(filterModeSP);
 				
 	            EditorGUILayout.Space();
