@@ -28,7 +28,6 @@ namespace DudeiNoise.Editor
 				exportFolderSP = serializedObject.FindProperty("exportFolder");
 				resolutionSP = serializedObject.FindProperty("resolution");
 				filterModeSP = serializedObject.FindProperty("filterMode");
-				
 			}
 
 			public override void OnInspectorGUI()

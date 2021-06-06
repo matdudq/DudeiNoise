@@ -23,7 +23,9 @@ namespace DudeiNoise.Editor
 			public void OnTabEnter()
 			{
 				owner.tillingEnabledSP.boolValue = false;
-				owner.CurrentNoiseSettingsSP.serializedObject.ApplyModifiedProperties();
+				owner.SetDirty();
+				
+				owner.RegenerateTextures();
 			}
 			
 			public void DrawInspector()

@@ -12,7 +12,7 @@ namespace DudeiNoise
 
 		private Color[] textureValues = null;
 
-		private float[] noiseBuffer = null;
+		private float[,] noiseBuffer = null;
 		
 		private Texture2D texture = null;
 
@@ -37,7 +37,7 @@ namespace DudeiNoise
 		{
 			this.settings = generatorSettings;
 			this.textureValues = new Color[NoiseSettings.maximalResolution * NoiseSettings.maximalResolution];
-			this.noiseBuffer = new float[NoiseSettings.maximalResolution * NoiseSettings.maximalResolution];
+			this.noiseBuffer = new float[NoiseSettings.maximalResolution, NoiseSettings.maximalResolution];
 			texture = new Texture2D(settings.resolution, settings.resolution, TextureFormat.RGBA32, false)
 			{
 				name = "Noise",
@@ -45,7 +45,7 @@ namespace DudeiNoise
 				wrapMode = TextureWrapMode.Clamp
 			};
 			
-			SaveTextureToChannel(NoiseTextureChannel.ALPHA);
+			UpdateTextureChannel(NoiseTextureChannel.ALPHA);
 		}
 		
 		#endregion
@@ -105,7 +105,7 @@ namespace DudeiNoise
 			}
 		}
 		
-		public void SaveTextureToChannel(NoiseTextureChannel noiseTextureChannel)
+		public void UpdateTextureChannel(NoiseTextureChannel noiseTextureChannel)
 		{
 			if (texture.width != settings.resolution)
 			{
@@ -120,22 +120,22 @@ namespace DudeiNoise
 			switch (noiseTextureChannel)
 			{
 				case NoiseTextureChannel.RED:
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.redChannelNoiseSettings, settings.resolution);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.redChannelNoiseSettings);
 					break;
 				case NoiseTextureChannel.GREEN:
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.greenChannelNoiseSettings,settings.resolution);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.greenChannelNoiseSettings);
 					break;
 				case NoiseTextureChannel.BLUE:
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.blueChannelNoiseSettings,settings.resolution);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.blueChannelNoiseSettings);
 					break;
 				case NoiseTextureChannel.ALPHA:
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.alphaChannelNoiseSettings,settings.resolution);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.alphaChannelNoiseSettings);
 					break;
 				case NoiseTextureChannel.FULL:
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.redChannelNoiseSettings, settings.resolution);
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.greenChannelNoiseSettings,settings.resolution);
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.blueChannelNoiseSettings,settings.resolution);
-					Noise.GenerateNoiseTexture(ref noiseBuffer,settings.alphaChannelNoiseSettings,settings.resolution);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.redChannelNoiseSettings);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.greenChannelNoiseSettings);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.blueChannelNoiseSettings);
+					Noise.GenerateNoiseMap(ref noiseBuffer,settings.alphaChannelNoiseSettings);
 					break;
 			}
 			
@@ -146,22 +146,22 @@ namespace DudeiNoise
 					switch (noiseTextureChannel)
 					{
 						case NoiseTextureChannel.RED:
-							textureValues[y * settings.resolution + x].r = noiseBuffer[y * settings.resolution + x];
+							textureValues[y * settings.resolution + x].r = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.GREEN:
-							textureValues[y * settings.resolution + x].g = noiseBuffer[y * settings.resolution + x];
+							textureValues[y * settings.resolution + x].g = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.BLUE:
-							textureValues[y * settings.resolution + x].b = noiseBuffer[y * settings.resolution + x];
+							textureValues[y * settings.resolution + x].b = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.ALPHA:
-							textureValues[y * settings.resolution + x].a = noiseBuffer[y * settings.resolution + x];
+							textureValues[y * settings.resolution + x].a = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.FULL:
-							textureValues[y * settings.resolution + x].r = noiseBuffer[y * settings.resolution + x];
-							textureValues[y * settings.resolution + x].g = noiseBuffer[y * settings.resolution + x];
-							textureValues[y * settings.resolution + x].b = noiseBuffer[y * settings.resolution + x];
-							textureValues[y * settings.resolution + x].a = noiseBuffer[y * settings.resolution + x]; 
+							textureValues[y * settings.resolution + x].r = noiseBuffer[x,y];
+							textureValues[y * settings.resolution + x].g = noiseBuffer[x,y];
+							textureValues[y * settings.resolution + x].b = noiseBuffer[x,y];
+							textureValues[y * settings.resolution + x].a = noiseBuffer[x,y]; 
 							break;
 					}
 				}

@@ -26,7 +26,9 @@ namespace DudeiNoise.Editor
 			public void OnTabEnter()
 			{
 				owner.tillingEnabledSP.boolValue = true;
-				owner.CurrentNoiseSettingsSP.serializedObject.ApplyModifiedProperties();
+				owner.SetDirty();
+				
+				owner.RegenerateTextures();
 			}
 			
 			public void DrawInspector()
@@ -82,10 +84,6 @@ namespace DudeiNoise.Editor
 					GUILayout.BeginHorizontal();
 					EditorGUILayout.PropertyField(owner.noiseTypeSP);
 					GUILayout.EndHorizontal();
-
-					owner.tillingPeriodSP.intValue = Mathf.RoundToInt(frequencyValue);
-					float halfOfFrequency = frequencyValue * 0.5f;
-					owner.positionOffsetSP.vector3Value = new Vector3(halfOfFrequency, halfOfFrequency, halfOfFrequency);
 					
 					GUILayout.Space(10);
 					GUILayout.EndVertical();
@@ -104,7 +102,13 @@ namespace DudeiNoise.Editor
 					GUILayout.Space(10);
 					
 					GUILayout.BeginHorizontal();
-					frequencyValue = Mathf.RoundToInt(EditorGUILayout.FloatField("Frequency", frequencyValue));
+					
+					frequencyValue = Mathf.Max(EditorGUILayout.IntField("Frequency", (int)frequencyValue),1);
+
+					owner.tillingPeriodSP.intValue = Mathf.RoundToInt(frequencyValue);
+					float halfOfFrequency = frequencyValue * 0.5f;
+					owner.positionOffsetSP.vector3Value = new Vector3(halfOfFrequency, halfOfFrequency, halfOfFrequency);
+					
 					GUILayout.EndHorizontal();
 
 					GUILayout.BeginHorizontal();

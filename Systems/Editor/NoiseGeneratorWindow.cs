@@ -120,7 +120,7 @@ namespace DudeiNoise.Editor
 	            Debug.Log( "Light-mapping Helper setup object have to be defined once inside a project. Creating deafault one ...");
 
                 newPreset = CreateInstance<NoiseTextureSettings>();
-                AssetDatabase.CreateAsset(newPreset, "Assets/Lightmapping-Helper-Preset.asset");
+                AssetDatabase.CreateAsset(newPreset, "Assets/" + nameof(NoiseTextureSettings) + ".asset");
 
                 EditorUtility.SetDirty(newPreset);
                 AssetDatabase.SaveAssets();
@@ -158,8 +158,15 @@ namespace DudeiNoise.Editor
 				{typeof(CustomSpaceTab), new CustomSpaceTab(this)},
 				{typeof(TillingTab), new TillingTab(this)}
 			};
-			
-			SwitchTab(typeof(CustomSpaceTab));
+
+			if (tillingEnabledSP.boolValue)
+			{
+				SwitchTab(typeof(TillingTab));
+			}
+			else
+			{
+				SwitchTab(typeof(CustomSpaceTab));
+			}
 
 		}
 		
@@ -206,8 +213,7 @@ namespace DudeiNoise.Editor
 		
 			if (EditorGUI.EndChangeCheck())
 			{
-				textureSettingsEditor.serializedObject.ApplyModifiedProperties();	
-				EditorUtility.SetDirty(settings);
+				SetDirty();
 				RegenerateTextures();
 			}
 
@@ -277,7 +283,7 @@ namespace DudeiNoise.Editor
 		
 		private void RegenerateTextures()
 		{
-			noiseTexture.SaveTextureToChannel(activeNoiseTextureChannel);
+			noiseTexture.UpdateTextureChannel(activeNoiseTextureChannel);
 			
 			RegenerateCachedChanelTextures();
 				
@@ -332,6 +338,12 @@ namespace DudeiNoise.Editor
 
 			UpdateActiveNoiseSettingsSp();
 			RegenerateTextures();
+		}
+
+		private void SetDirty()
+		{
+			textureSettingsEditor.serializedObject.ApplyModifiedProperties();
+			EditorUtility.SetDirty(settings);
 		}
 		
 		#endregion Private methods

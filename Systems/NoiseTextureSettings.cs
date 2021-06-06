@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace DudeiNoise
 {
-	[CreateAssetMenu(fileName = "NoiseSettings", menuName = "Noise/Create Settings", order = 1)]
+	[CreateAssetMenu(fileName = nameof(NoiseTextureSettings), menuName = "Noise/" + nameof(NoiseTextureSettings), order = 1)]
 	public class NoiseTextureSettings : ScriptableObject
 	{
 		#region Variables
@@ -11,7 +11,7 @@ namespace DudeiNoise
 		[Tooltip("Folder where textures will be saved.")]
 		public FolderReference exportFolder = new FolderReference();
 
-		[Tooltip("Resolution of rendered texture.")]
+		[Range(4,256), Tooltip("Resolution of rendered texture.")]
 		public int resolution = 256;
 		
 		[Tooltip("Filter mode of rendered texture. Good to see different ways of filtering to se how noise works.")]

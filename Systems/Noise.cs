@@ -112,12 +112,14 @@ namespace DudeiNoise
 	
 		private const int gradientsMask3D = 15;
 		
-		#endregion Variables
+		#endregion Variablese
 
 		#region Public methods
 		
-		public static void GenerateNoiseTexture(ref float[] textureValues, NoiseSettings textureSettings, int resolution)
+		public static void GenerateNoiseMap(ref float[,] textureValues, NoiseSettings textureSettings)
 		{
+			int resolution = Mathf.Min(textureValues.GetLength(0), textureValues.GetLength(1));
+			
 			Matrix4x4 noiseTRS = Matrix4x4.TRS(textureSettings.positionOffset, Quaternion.Euler(textureSettings.rotationOffset), textureSettings.scaleOffset);
 			
 			Vector3 point00 = noiseTRS.MultiplyPoint3x4(new Vector3(-0.5f,-0.5f));
@@ -136,7 +138,7 @@ namespace DudeiNoise
 				{
 					Vector3 point = Vector3.Lerp(point0,point1, (x + 0.5f) * stepSize);
 					float sample = GetProbe(point,textureSettings);
-					textureValues[y * resolution + x] = sample;
+					textureValues[x,y] = sample;
 				}
 			}
 		}
