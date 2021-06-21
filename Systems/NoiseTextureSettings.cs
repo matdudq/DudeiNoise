@@ -1,4 +1,6 @@
-﻿using DudeiNoise.Editor.Utilities;
+﻿using DudeiNoise.Editor;
+using DudeiNoise.Editor.Utilities;
+using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace DudeiNoise
@@ -50,5 +52,6 @@ namespace DudeiNoise
 		}
 
 		#endregion Public methods
+		
 	}
 }

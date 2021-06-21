@@ -166,7 +166,8 @@ namespace DudeiNoise
 					}
 				}
 			}
-			
+
+			texture.GetRawTextureData<Color>();
 			texture.SetPixels(textureValues);
 			texture.Apply();
 		}

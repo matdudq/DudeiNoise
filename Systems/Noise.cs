@@ -158,7 +158,7 @@ namespace DudeiNoise
 
 		private static float GetProbe (Vector3 point, NoiseMethod method, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
 		{
-			float sum = method(point,tillingPeriod,tillingEnabled);
+			float sum = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
 			float amplitude = 1f;
 			float range = 1f;
 
