@@ -16,6 +16,7 @@ namespace DudeiNoise.Editor
 			private bool isFrequencySectionFolded = false;
 			private bool isLayersSectionFolded = false;
 			private bool isCustomPatternsSectionFolded = false;
+			private bool isFalloffSectionFolded = false;
 			
 			public TillingTab(NoiseGeneratorWindow owner)
 			{
@@ -37,6 +38,7 @@ namespace DudeiNoise.Editor
 				DrawFrequencySection();
 				DrawLayersSettingsSection();
 				DrawCustomPatternsSection();
+				DrawFalloffSection();
 			}
 
 			public bool DrawButton()
@@ -143,6 +145,34 @@ namespace DudeiNoise.Editor
 					EditorGUILayout.PropertyField(owner.persistenceSP);
 					GUILayout.EndHorizontal();
 
+					GUILayout.Space(10);
+					GUILayout.EndVertical();
+				}
+				
+				EditorGUILayout.EndFoldoutHeaderGroup();
+			}
+
+			private void DrawFalloffSection()
+			{
+				isFalloffSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isFalloffSectionFolded, owner.falloffSectionHeaderGC);
+				
+				if (isFalloffSectionFolded)
+				{
+					GUILayout.BeginVertical(owner.sectionStyle);
+					GUILayout.Space(10);
+					
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffEnabledSP);
+					GUILayout.EndHorizontal();
+
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffParameterSP);
+					GUILayout.EndHorizontal();
+					
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffShiftSP);
+					GUILayout.EndHorizontal();
+					
 					GUILayout.Space(10);
 					GUILayout.EndVertical();
 				}

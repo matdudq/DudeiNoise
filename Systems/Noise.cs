@@ -116,29 +116,34 @@ namespace DudeiNoise
 
 		#region Public methods
 		
-		public static void GenerateNoiseMap(ref float[,] textureValues, NoiseSettings textureSettings)
+		public static void GenerateNoiseMap(ref float[,] noiseMap, NoiseSettings noiseSettings)
 		{
-			int resolution = Mathf.Min(textureValues.GetLength(0), textureValues.GetLength(1));
+			int resolution = Mathf.Min(noiseMap.GetLength(0), noiseMap.GetLength(1));
 			
-			Matrix4x4 noiseTRS = Matrix4x4.TRS(textureSettings.positionOffset, Quaternion.Euler(textureSettings.rotationOffset), textureSettings.scaleOffset);
+			Matrix4x4 noiseTRS = Matrix4x4.TRS(noiseSettings.positionOffset, Quaternion.Euler(noiseSettings.rotationOffset), noiseSettings.scaleOffset);
 			
 			Vector3 point00 = noiseTRS.MultiplyPoint3x4(new Vector3(-0.5f,-0.5f));
 			Vector3 point10 = noiseTRS.MultiplyPoint3x4(new Vector3(0.5f,-0.5f));
 			Vector3 point01 = noiseTRS.MultiplyPoint3x4(new Vector3(-0.5f,0.5f));
 			Vector3 point11 = noiseTRS.MultiplyPoint3x4(new Vector3(0.5f,0.5f));
 
-			float stepSize = 1.0f /  resolution;
+			float stepSize = 1.0f / (resolution-1);
 
 			for (int y = 0; y < resolution; y++)
 			{
-				Vector3 point0 = Vector3.Lerp(point00,point01, (y + 0.5f) * stepSize);
-				Vector3 point1 = Vector3.Lerp(point10,point11, (y + 0.5f) * stepSize);
+				Vector3 point0 = Vector3.Lerp(point00,point01, y * stepSize);
+				Vector3 point1 = Vector3.Lerp(point10,point11, y * stepSize);
 				
 				for (int x = 0; x < resolution; x++)
 				{
-					Vector3 point = Vector3.Lerp(point0,point1, (x + 0.5f) * stepSize);
-					float sample = GetProbe(point,textureSettings);
-					textureValues[x,y] = sample;
+					Vector3 point = Vector3.Lerp(point0,point1, x * stepSize);
+					noiseMap[x,y] = GetProbe(point,noiseSettings);
+
+					if (noiseSettings.falloffEnabled)
+					{
+						noiseMap[x, y] -= FalloffGenerator.GetFalloffProbe(x, y,noiseSettings.falloffDensity,noiseSettings.falloffShift, resolution);
+						noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y]);
+					}
 				}
 			}
 		}
@@ -152,7 +157,7 @@ namespace DudeiNoise
 			return GetProbe(point, generatorSettings.NoiseMethod(),
 							generatorSettings.tillingEnabled, generatorSettings.tillingPeriod,
 							generatorSettings.octaves, generatorSettings.lacunarity, 
-							generatorSettings.persistence, generatorSettings.turbulence, 
+							generatorSettings.persistence, generatorSettings.turbulenceEnabled, 
 							generatorSettings.noiseType,generatorSettings.woodPatternMultiplier);
 		}
 
@@ -160,14 +165,15 @@ namespace DudeiNoise
 		{
 			float sum = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
 			float amplitude = 1f;
-			float range = 1f;
+			float range = amplitude;
 
 			for (int i = 1; i < octaves; i++)
 			{
 				point *= lacunarity;
+				float currentSample = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
+				
 				amplitude *= persistence;
 				range += amplitude;
-				float currentSample = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
 				sum += currentSample * amplitude;
 			}
 

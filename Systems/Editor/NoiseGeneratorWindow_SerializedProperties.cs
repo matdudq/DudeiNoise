@@ -36,6 +36,10 @@ namespace DudeiNoise.Editor
 		
         private SerializedProperty tillingPeriodSP  = null;
 
+		private SerializedProperty falloffEnabledSP = null;
+		private SerializedProperty falloffParameterSP = null;
+		private SerializedProperty falloffShiftSP = null;
+
         #endregion Variables - Settings SP
 		
         #endregion Variables - SerializedProperties
@@ -56,7 +60,10 @@ namespace DudeiNoise.Editor
 	        turbulenceSP = CurrentNoiseSettingsSP.FindPropertyRelative("turbulence");
 	        noiseTypeSP = CurrentNoiseSettingsSP.FindPropertyRelative("noiseType");
 	        tillingPeriodSP = CurrentNoiseSettingsSP.FindPropertyRelative("tillingPeriod");
-        }
+			falloffEnabledSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffEnabled");
+			falloffParameterSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffParameter");
+			falloffShiftSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffShift");
+		}
 
         #endregion Private methods
     }

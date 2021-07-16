@@ -43,8 +43,6 @@ namespace DudeiNoise
 					return blueChannelNoiseSettings;
 				case NoiseTextureChannel.ALPHA:
 					return alphaChannelNoiseSettings;
-				case NoiseTextureChannel.FULL:
-					return redChannelNoiseSettings;
 			}
 
 			Debug.Log( $"Something goes wrong with defined channel {noiseTextureChannel}");

@@ -7,8 +7,7 @@
 		RED,
 		GREEN,
 		BLUE,
-		ALPHA,
-		FULL
+		ALPHA
 
 		#endregion Values
 	}

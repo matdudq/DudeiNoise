@@ -15,6 +15,7 @@ namespace DudeiNoise.Editor
         private GUIContent frequencySectionHeaderGC = null;
         private GUIContent octavesSectionHeaderGC = null;
         private GUIContent spaceSectionHeaderGC = null;
+        private GUIContent falloffSectionHeaderGC = null;
 
         private GUIContent redChannelButtonGC = null;
         private GUIContent greenChannelButtonGC = null;
@@ -37,7 +38,8 @@ namespace DudeiNoise.Editor
             frequencySectionHeaderGC = new GUIContent("Frequency settings");
             octavesSectionHeaderGC = new GUIContent("Octaves settings");
             spaceSectionHeaderGC = new GUIContent("Space settings");
-
+            falloffSectionHeaderGC = new GUIContent("Falloff settings");
+            
             redChannelButtonGC = new GUIContent("Red channel");
             greenChannelButtonGC = new GUIContent("Green channel");
             blueChannelButtonGC = new GUIContent("Blue channel");

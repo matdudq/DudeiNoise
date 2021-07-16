@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,10 +10,6 @@ namespace DudeiNoise
 		#region Variables
 
 		private NoiseTextureSettings settings = null;
-
-		private Color[] textureValues = null;
-
-		private float[,] noiseBuffer = null;
 		
 		private Texture2D texture = null;
 
@@ -36,8 +33,6 @@ namespace DudeiNoise
 		public NoiseTexture(NoiseTextureSettings generatorSettings)
 		{
 			this.settings = generatorSettings;
-			this.textureValues = new Color[NoiseSettings.maximalResolution * NoiseSettings.maximalResolution];
-			this.noiseBuffer = new float[NoiseSettings.maximalResolution, NoiseSettings.maximalResolution];
 			texture = new Texture2D(settings.resolution, settings.resolution, TextureFormat.RGBA32, false)
 			{
 				name = "Noise",
@@ -106,10 +101,13 @@ namespace DudeiNoise
 		}
 		
 		public void UpdateTextureChannel(NoiseTextureChannel noiseTextureChannel)
-		{
-			if (texture.width != settings.resolution)
+		{			
+			int currentResolution = settings.resolution;
+			float[,] noiseBuffer = new float[currentResolution,currentResolution];
+			
+			if (texture.width != currentResolution)
 			{
-				texture.Resize( settings.resolution, settings.resolution);
+				texture.Resize( currentResolution, currentResolution);
 			}
 
 			if (texture.filterMode != settings.filterMode)
@@ -131,44 +129,35 @@ namespace DudeiNoise
 				case NoiseTextureChannel.ALPHA:
 					Noise.GenerateNoiseMap(ref noiseBuffer,settings.alphaChannelNoiseSettings);
 					break;
-				case NoiseTextureChannel.FULL:
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.redChannelNoiseSettings);
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.greenChannelNoiseSettings);
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.blueChannelNoiseSettings);
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.alphaChannelNoiseSettings);
-					break;
 			}
 			
-			for (int y = 0; y < settings.resolution; y++)
+			NativeArray<Color32> textureValues = texture.GetRawTextureData<Color32>();
+			
+			for (int y = 0; y < currentResolution; y++)
 			{
-				for (int x = 0; x < settings.resolution; x++)
+				for (int x = 0; x < currentResolution; x++)
 				{
+					Color oldColor = textureValues[y * currentResolution + x];
 					switch (noiseTextureChannel)
 					{
 						case NoiseTextureChannel.RED:
-							textureValues[y * settings.resolution + x].r = noiseBuffer[x,y];
+							oldColor.r = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.GREEN:
-							textureValues[y * settings.resolution + x].g = noiseBuffer[x,y];
+							oldColor.g = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.BLUE:
-							textureValues[y * settings.resolution + x].b = noiseBuffer[x,y];
+							oldColor.b = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.ALPHA:
-							textureValues[y * settings.resolution + x].a = noiseBuffer[x,y];
-							break;
-						case NoiseTextureChannel.FULL:
-							textureValues[y * settings.resolution + x].r = noiseBuffer[x,y];
-							textureValues[y * settings.resolution + x].g = noiseBuffer[x,y];
-							textureValues[y * settings.resolution + x].b = noiseBuffer[x,y];
-							textureValues[y * settings.resolution + x].a = noiseBuffer[x,y]; 
+							oldColor.a = noiseBuffer[x,y];
 							break;
 					}
+
+					textureValues[y * currentResolution + x] = oldColor;
 				}
 			}
 
-			texture.GetRawTextureData<Color>();
-			texture.SetPixels(textureValues);
 			texture.Apply();
 		}
 

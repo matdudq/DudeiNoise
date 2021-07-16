@@ -56,8 +56,6 @@ namespace DudeiNoise.Editor
 						return blueChanelSettingsProperty;
 					case NoiseTextureChannel.ALPHA:
 						return alphaChanelSettingsProperty;
-					case NoiseTextureChannel.FULL:
-						return redChanelSettingsProperty;
 				}
 				
 				Debug.Log( $"Something goes wrong with defined channel {activeNoiseTextureChannel}");
@@ -325,9 +323,6 @@ namespace DudeiNoise.Editor
 					break;
 				case NoiseTextureChannel.ALPHA:
 					textureWindow.UpdateTexture(alphaChanelTextureArray, settings.resolution, settings.filterMode);
-					break;
-				case NoiseTextureChannel.FULL:
-					textureWindow.UpdateTexture(originalTextureArray, settings.resolution, settings.filterMode);
 					break;
 			}
 		}
