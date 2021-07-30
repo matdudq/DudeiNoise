@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Mathematics;
+using UnityEngine;
 
 namespace DudeiNoise
 {
@@ -20,10 +21,10 @@ namespace DudeiNoise
 		
 		public static float GetFalloffProbe(float x, float y, float a, float b, int size)
 		{
-			float normalizedX = Mathf.Clamp(x,0,size) / size * 2.0f - 1.0f;
-			float normalizedY = Mathf.Clamp(y,0,size) / size * 2.0f - 1.0f;
+			float normalizedX = math.clamp(x,0,size) / size * 2.0f - 1.0f;
+			float normalizedY = math.clamp(y,0,size) / size * 2.0f - 1.0f;
 			
-			float falloffValue = Mathf.Max(Mathf.Abs(normalizedX), Mathf.Abs(normalizedY));
+			float falloffValue = math.max(Mathf.Abs(normalizedX), math.abs(normalizedY));
 			float falloffTransition = FalloffCurve(falloffValue, a, b);
 			
 			return falloffTransition;
@@ -31,7 +32,7 @@ namespace DudeiNoise
 		
 		private static float FalloffCurve(float value, float a, float b)
 		{
-			return Mathf.Pow(value, a) / (Mathf.Pow(value, a) + Mathf.Pow(b - b * value, a));
+			return math.pow(value, a) / (math.pow(value, a) + math.pow(b - b * value, a));
 		}
 	}
 }

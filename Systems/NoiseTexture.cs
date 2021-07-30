@@ -114,22 +114,9 @@ namespace DudeiNoise
 			{
 				texture.filterMode = settings.filterMode;
 			}
-			
-			switch (noiseTextureChannel)
-			{
-				case NoiseTextureChannel.RED:
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.redChannelNoiseSettings);
-					break;
-				case NoiseTextureChannel.GREEN:
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.greenChannelNoiseSettings);
-					break;
-				case NoiseTextureChannel.BLUE:
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.blueChannelNoiseSettings);
-					break;
-				case NoiseTextureChannel.ALPHA:
-					Noise.GenerateNoiseMap(ref noiseBuffer,settings.alphaChannelNoiseSettings);
-					break;
-			}
+
+			NoiseSettings noiseSettings = settings.GetNoiseSettingsForChannel(noiseTextureChannel);
+			Noise.GenerateNoiseMap(ref noiseBuffer, noiseSettings);
 			
 			NativeArray<Color32> textureValues = texture.GetRawTextureData<Color32>();
 			
@@ -137,24 +124,25 @@ namespace DudeiNoise
 			{
 				for (int x = 0; x < currentResolution; x++)
 				{
-					Color oldColor = textureValues[y * currentResolution + x];
+					Color color = textureValues[y * currentResolution + x];
+					
 					switch (noiseTextureChannel)
 					{
 						case NoiseTextureChannel.RED:
-							oldColor.r = noiseBuffer[x,y];
+							color.r = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.GREEN:
-							oldColor.g = noiseBuffer[x,y];
+							color.g = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.BLUE:
-							oldColor.b = noiseBuffer[x,y];
+							color.b = noiseBuffer[x,y];
 							break;
 						case NoiseTextureChannel.ALPHA:
-							oldColor.a = noiseBuffer[x,y];
+							color.a = noiseBuffer[x,y];
 							break;
 					}
 
-					textureValues[y * currentResolution + x] = oldColor;
+					textureValues[y * currentResolution + x] = color;
 				}
 			}
 

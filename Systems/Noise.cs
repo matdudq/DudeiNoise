@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
+using Utilities;
 
 namespace DudeiNoise
 {
-	public delegate float NoiseMethod(Vector3 point, int tillingPeriod, bool tillingEnabled);
+	public delegate float NoiseMethod(float3 point, int tillingPeriod, bool tillingEnabled);
 
-	public static class Noise
+	public static partial class Noise
 	{
 		#region Variables
 		
@@ -69,7 +73,7 @@ namespace DudeiNoise
 
 		private const int hashMask = 255;
 
-		private static float sqr2 = Mathf.Sqrt(2f);
+		private static float sqr2 = math.sqrt(2f);
 		
 		private static float[] gradients1D = {
 			1f, -1f
@@ -77,37 +81,37 @@ namespace DudeiNoise
 
 		private const int gradientsMask1D = 1;
 		
-		private static Vector2[] gradients2D = {
-			new Vector2( 1f, 0f),
-			new Vector2(-1f, 0f),
-			new Vector2( 0f, 1f),
-			new Vector2( 0f,-1f),
-			new Vector2( 1f, 1f).normalized,
-			new Vector2(-1f, 1f).normalized,
-			new Vector2( 1f,-1f).normalized,
-			new Vector2(-1f,-1f).normalized
+		private static float2[] gradients2D = {
+			new float2( 1f, 0f),
+			new float2(-1f, 0f),
+			new float2( 0f, 1f),
+			new float2( 0f,-1f),
+			math.normalize(new float2( 1f, 1f)),
+			math.normalize(new float2(-1f, 1f)), 
+			math.normalize(new float2( 1f,-1f)), 
+			math.normalize(new float2(-1f,-1f))
 		};
 	
 		private const int gradientsMask2D = 7;
 		
-		private static Vector3[] gradients3D = {
-			new Vector3( 1f, 1f, 0f),
-			new Vector3(-1f, 1f, 0f),
-			new Vector3( 1f,-1f, 0f),
-			new Vector3(-1f,-1f, 0f),
-			new Vector3( 1f, 0f, 1f),
-			new Vector3(-1f, 0f, 1f),
-			new Vector3( 1f, 0f,-1f),
-			new Vector3(-1f, 0f,-1f),
-			new Vector3( 0f, 1f, 1f),
-			new Vector3( 0f,-1f, 1f),
-			new Vector3( 0f, 1f,-1f),
-			new Vector3( 0f,-1f,-1f),
+		private static float3[] gradients3D = {
+			new float3( 1f, 1f, 0f),
+			new float3(-1f, 1f, 0f),
+			new float3( 1f,-1f, 0f),
+			new float3(-1f,-1f, 0f),
+			new float3( 1f, 0f, 1f),
+			new float3(-1f, 0f, 1f),
+			new float3( 1f, 0f,-1f),
+			new float3(-1f, 0f,-1f),
+			new float3( 0f, 1f, 1f),
+			new float3( 0f,-1f, 1f),
+			new float3( 0f, 1f,-1f),
+			new float3( 0f,-1f,-1f),
 		
-			new Vector3( 1f, 1f, 0f),
-			new Vector3(-1f, 1f, 0f),
-			new Vector3( 0f,-1f, 1f),
-			new Vector3( 0f,-1f,-1f)
+			new float3( 1f, 1f, 0f),
+			new float3(-1f, 1f, 0f),
+			new float3( 0f,-1f, 1f),
+			new float3( 0f,-1f,-1f)
 		};
 	
 		private const int gradientsMask3D = 15;
@@ -115,62 +119,96 @@ namespace DudeiNoise
 		#endregion Variablese
 
 		#region Public methods
-		
+
 		public static void GenerateNoiseMap(ref float[,] noiseMap, NoiseSettings noiseSettings)
-		{
-			int resolution = Mathf.Min(noiseMap.GetLength(0), noiseMap.GetLength(1));
+		{ 
+			int resolution = math.min(noiseMap.GetLength(0), noiseMap.GetLength(1));
+
+			NativeArray<float3> points = new NativeArray<float3>(resolution * resolution, Allocator.TempJob);
+			NativeArray<float2> localPoints = new NativeArray<float2>(resolution * resolution, Allocator.TempJob);
+			NativeArray<float> noiseMapResult = new NativeArray<float>(resolution * resolution, Allocator.TempJob);
 			
-			Matrix4x4 noiseTRS = Matrix4x4.TRS(noiseSettings.positionOffset, Quaternion.Euler(noiseSettings.rotationOffset), noiseSettings.scaleOffset);
+			Matrix4x4 noiseTRS = float4x4.TRS(noiseSettings.positionOffset, quaternion.Euler(noiseSettings.rotationOffset), noiseSettings.scaleOffset);
 			
-			Vector3 point00 = noiseTRS.MultiplyPoint3x4(new Vector3(-0.5f,-0.5f));
-			Vector3 point10 = noiseTRS.MultiplyPoint3x4(new Vector3(0.5f,-0.5f));
-			Vector3 point01 = noiseTRS.MultiplyPoint3x4(new Vector3(-0.5f,0.5f));
-			Vector3 point11 = noiseTRS.MultiplyPoint3x4(new Vector3(0.5f,0.5f));
+			float3 point00 = noiseTRS.MultiplyPoint3x4(new float3(-0.5f,-0.5f,0.0f));
+			float3 point10 = noiseTRS.MultiplyPoint3x4(new float3(0.5f,-0.5f,0.0f));
+			float3 point01 = noiseTRS.MultiplyPoint3x4(new float3(-0.5f,0.5f,0.0f));
+			float3 point11 = noiseTRS.MultiplyPoint3x4(new float3(0.5f,0.5f,0.0f));
 
 			float stepSize = 1.0f / (resolution-1);
 
 			for (int y = 0; y < resolution; y++)
 			{
-				Vector3 point0 = Vector3.Lerp(point00,point01, y * stepSize);
-				Vector3 point1 = Vector3.Lerp(point10,point11, y * stepSize);
+				float3 point0 = math.lerp(point00,point01, y * stepSize);
+				float3 point1 = math.lerp(point10,point11, y * stepSize);
 				
 				for (int x = 0; x < resolution; x++)
 				{
-					Vector3 point = Vector3.Lerp(point0,point1, x * stepSize);
-					noiseMap[x,y] = GetProbe(point,noiseSettings);
-
-					if (noiseSettings.falloffEnabled)
-					{
-						noiseMap[x, y] -= FalloffGenerator.GetFalloffProbe(x, y,noiseSettings.falloffDensity,noiseSettings.falloffShift, resolution);
-						noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y]);
-					}
+					points[x + resolution * y] =  math.lerp(point0,point1, x * stepSize);
+					localPoints[x + resolution * y] = new float2(x, y);
 				}
 			}
+			
+			GenerateNoiseMapJob generateNoiseMapJob = new GenerateNoiseMapJob()
+			{
+				noiseType = noiseSettings.noiseType,
+				dimensions = noiseSettings.dimensions,
+				tillingPeriod = noiseSettings.tillingPeriod,
+				tillingEnabled = noiseSettings.tillingEnabled,
+				octaves = noiseSettings.octaves,
+				lacunarity = noiseSettings.lacunarity,
+				persistence = noiseSettings.persistence,
+				woodPatternMultiplier = noiseSettings.woodPatternMultiplier,
+				turbulenceEnabled = noiseSettings.turbulenceEnabled,
+				falloffEnabled = noiseSettings.falloffEnabled,
+				falloffShift = noiseSettings.falloffShift,
+				falloffDensity = noiseSettings.falloffDensity,
+				points = points,
+				localPoints =  localPoints,
+				noiseMapResult = noiseMapResult,
+				resolution = resolution
+			};
+
+			int arrayLength = resolution * resolution;
+			
+			generateNoiseMapJob.ScheduleAndComplete(arrayLength, arrayLength / 6);
+
+			for (int y = 0; y < resolution; y++)
+			{
+				for (int x = 0; x < resolution; x++)
+				{
+					noiseMap[x, y] = generateNoiseMapJob.noiseMapResult[x + resolution * y];
+				}
+			}
+			
+			generateNoiseMapJob.Dispose();
 		}
 		
 		#endregion Public methods
 		
 		#region Private methods
 		
-		private static float GetProbe(Vector3 point, NoiseSettings generatorSettings)
+		private static float GetProbe(float3 point, NoiseSettings generatorSettings)
 		{
-			return GetProbe(point, generatorSettings.NoiseMethod(),
+			return GetProbe(point, generatorSettings.dimensions,
 							generatorSettings.tillingEnabled, generatorSettings.tillingPeriod,
 							generatorSettings.octaves, generatorSettings.lacunarity, 
 							generatorSettings.persistence, generatorSettings.turbulenceEnabled, 
 							generatorSettings.noiseType,generatorSettings.woodPatternMultiplier);
 		}
 
-		private static float GetProbe (Vector3 point, NoiseMethod method, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
+		private static float GetProbe (float3 point, int dimensions, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
 		{
-			float sum = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
+			NoiseMethod method = GetNoiseMethod(noiseType, dimensions);
+			
+			float sum = turbulence ? math.abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
 			float amplitude = 1f;
 			float range = amplitude;
 
 			for (int i = 1; i < octaves; i++)
 			{
 				point *= lacunarity;
-				float currentSample = turbulence ? Mathf.Abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
+				float currentSample = turbulence ? math.abs(method(point,tillingPeriod,tillingEnabled)) : method(point,tillingPeriod,tillingEnabled);
 				
 				amplitude *= persistence;
 				range += amplitude;
@@ -207,9 +245,9 @@ namespace DudeiNoise
 		
 		#region Basic noise
 
-		private static float Noise1D (Vector3 point, int tillingPeriod , bool tillingEnabled )
+		private static float Noise1D (float3 point, int tillingPeriod , bool tillingEnabled )
 		{
-			int i0 = Mathf.FloorToInt(point.x);
+			int i0 = (int)math.floor(point.x);
 			
 			if (tillingEnabled)
 			{
@@ -219,10 +257,10 @@ namespace DudeiNoise
 			return hash[i0 & hashMask] * (1.0f / hashMask);
 		}
 		
-		private static float Noise2D (Vector3 point, int tillingPeriod, bool tillingEnabled) 
+		private static float Noise2D (float3 point, int tillingPeriod, bool tillingEnabled) 
 		{
-			int ix = Mathf.FloorToInt(point.x);
-			int iy = Mathf.FloorToInt(point.y);
+			int ix = (int)math.floor(point.x);
+			int iy = (int)math.floor(point.y);
 			
 			if (tillingEnabled)
 			{
@@ -233,11 +271,11 @@ namespace DudeiNoise
 			return hash[hash[ix & hashMask] + iy & hashMask] * (1f / hashMask);
 		}
 
-		private static float Noise3D (Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float Noise3D (float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int ix = Mathf.FloorToInt(point.x);
-			int iy = Mathf.FloorToInt(point.y);
-			int iz = Mathf.FloorToInt(point.z);
+			int ix = (int)math.floor(point.x);
+			int iy = (int)math.floor(point.y);
+			int iz = (int)math.floor(point.z);
 			
 			if (tillingEnabled)
 			{
@@ -253,9 +291,9 @@ namespace DudeiNoise
 
 		#region Value noise
 
-		private static float ValueNoise1D (Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float ValueNoise1D (float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int i0 = Mathf.FloorToInt(point.x);
+			int i0 = (int)math.floor(point.x);
 			
 			float t = point.x - i0;
 			
@@ -273,17 +311,16 @@ namespace DudeiNoise
 				i1 = PositiveModulo(i1, tillingPeriod);
 			}
 
-			
 			int h0 = hash[i0];
 			int h1 = hash[i1];
 
-			return Mathf.Lerp(h0, h1, Smooth(t)) * (1f / hashMask);
+			return math.lerp(h0, h1, Smooth(t)) * (1f / hashMask);
 		}
 
-		private static float ValueNoise2D(Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float ValueNoise2D(float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int ix0 = Mathf.FloorToInt(point.x);
-			int iy0 = Mathf.FloorToInt(point.y);
+			int ix0 = (int)math.floor(point.x);
+			int iy0 = (int)math.floor(point.y);
 
 			float xt = point.x - ix0;
 			float yt = point.y - iy0;
@@ -318,16 +355,16 @@ namespace DudeiNoise
 			xt = Smooth(xt);
 			yt = Smooth(yt);
 			
-			return Mathf.Lerp(Mathf.Lerp(h00, h10, xt),
-							  Mathf.Lerp(h01, h11, xt),
+			return math.lerp(math.lerp(h00, h10, xt),
+							  math.lerp(h01, h11, xt),
 							  yt) * (1f / hashMask);
 		}
 
-		private static float ValueNoise3D (Vector3 point, int tillingPeriod, bool tillingEnabled) 
+		private static float ValueNoise3D (float3 point, int tillingPeriod, bool tillingEnabled) 
 		{
-			int ix0 = Mathf.FloorToInt(point.x);
-			int iy0 = Mathf.FloorToInt(point.y);
-			int iz0 = Mathf.FloorToInt(point.z);
+			int ix0 = (int)math.floor(point.x);
+			int iy0 = (int)math.floor(point.y);
+			int iz0 = (int)math.floor(point.z);
 			
 			float tx = point.x - ix0;
 			float ty = point.y - iy0;
@@ -374,8 +411,8 @@ namespace DudeiNoise
 			ty = Smooth(ty);
 			tz = Smooth(tz);
 			
-			return Mathf.Lerp(Mathf.Lerp(Mathf.Lerp(h000, h100, tx), Mathf.Lerp(h010, h110, tx), ty),
-							  Mathf.Lerp(Mathf.Lerp(h001, h101, tx), Mathf.Lerp(h011, h111, tx), ty),
+			return math.lerp(math.lerp(math.lerp(h000, h100, tx), math.lerp(h010, h110, tx), ty),
+							  math.lerp(math.lerp(h001, h101, tx), math.lerp(h011, h111, tx), ty),
 							  tz) * (1f / hashMask);
 		}
 
@@ -383,9 +420,9 @@ namespace DudeiNoise
 
 		#region Perlin noise
 
-		private static float PerlinNoise1D(Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float PerlinNoise1D(float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int i0 = Mathf.FloorToInt(point.x);
+			int i0 = (int)math.floor(point.x);
 			float t0 = point.x - i0;
 			float t1 = t0 - 1.0f;
 
@@ -411,12 +448,12 @@ namespace DudeiNoise
 
 			float t = Smooth(t0);
 			
-			return Mathf.Lerp(v0,v1, t) * 2.0f;
+			return math.lerp(v0,v1, t) * 2.0f;
 		}
-		private static float PerlinNoise2D(Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float PerlinNoise2D(float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int ix0 = Mathf.FloorToInt(point.x);
-			int iy0 = Mathf.FloorToInt(point.y);
+			int ix0 = (int)math.floor(point.x);
+			int iy0 = (int)math.floor(point.y);
 			
 			float tx0 = point.x - ix0;
 			float ty0 = point.y - iy0;
@@ -444,10 +481,10 @@ namespace DudeiNoise
 			int h0 = hash[ix0];
 			int h1 = hash[ix1];
 			
-			Vector2 g00 = gradients2D[hash[h0 + iy0] & gradientsMask2D];
-			Vector2 g10 = gradients2D[hash[h1 + iy0] & gradientsMask2D];
-			Vector2 g01 = gradients2D[hash[h0 + iy1] & gradientsMask2D];
-			Vector2 g11 = gradients2D[hash[h1 + iy1] & gradientsMask2D];
+			float2 g00 = gradients2D[hash[h0 + iy0] & gradientsMask2D];
+			float2 g10 = gradients2D[hash[h1 + iy0] & gradientsMask2D];
+			float2 g01 = gradients2D[hash[h0 + iy1] & gradientsMask2D];
+			float2 g11 = gradients2D[hash[h1 + iy1] & gradientsMask2D];
 
 			float v00 = Dot(g00, tx0, ty0);
 			float v10 = Dot(g10, tx1, ty0);
@@ -457,16 +494,16 @@ namespace DudeiNoise
 			float tx = Smooth(tx0);
 			float ty = Smooth(ty0);
 			
-			return Mathf.Lerp(Mathf.Lerp(v00, v10, tx),
-							 Mathf.Lerp(v01, v11, tx),
+			return math.lerp(math.lerp(v00, v10, tx),
+							 math.lerp(v01, v11, tx),
 							 ty) * sqr2;
 		}
 
-		private static float PerlinNoise3D(Vector3 point, int tillingPeriod, bool tillingEnabled)
+		private static float PerlinNoise3D(float3 point, int tillingPeriod, bool tillingEnabled)
 		{
-			int ix0 = Mathf.FloorToInt(point.x);
-			int iy0 = Mathf.FloorToInt(point.y);
-			int iz0 = Mathf.FloorToInt(point.z);
+			int ix0 = (int)math.floor(point.x);
+			int iy0 = (int)math.floor(point.y);
+			int iz0 = (int)math.floor(point.z);
 			
 			float tx0 = point.x - ix0;
 			float ty0 = point.y - iy0;
@@ -504,14 +541,14 @@ namespace DudeiNoise
 			int h01 = hash[h0 + iy1];
 			int h11 = hash[h1 + iy1];
 			
-			Vector3 g000 = gradients3D[hash[h00 + iz0] & gradientsMask3D];
-			Vector3 g100 = gradients3D[hash[h10 + iz0] & gradientsMask3D];
-			Vector3 g010 = gradients3D[hash[h01 + iz0] & gradientsMask3D];
-			Vector3 g110 = gradients3D[hash[h11 + iz0] & gradientsMask3D];
-			Vector3 g001 = gradients3D[hash[h00 + iz1] & gradientsMask3D];
-			Vector3 g101 = gradients3D[hash[h10 + iz1] & gradientsMask3D];
-			Vector3 g011 = gradients3D[hash[h01 + iz1] & gradientsMask3D];
-			Vector3 g111 = gradients3D[hash[h11 + iz1] & gradientsMask3D];
+			float3 g000 = gradients3D[hash[h00 + iz0] & gradientsMask3D];
+			float3 g100 = gradients3D[hash[h10 + iz0] & gradientsMask3D];
+			float3 g010 = gradients3D[hash[h01 + iz0] & gradientsMask3D];
+			float3 g110 = gradients3D[hash[h11 + iz0] & gradientsMask3D];
+			float3 g001 = gradients3D[hash[h00 + iz1] & gradientsMask3D];
+			float3 g101 = gradients3D[hash[h10 + iz1] & gradientsMask3D];
+			float3 g011 = gradients3D[hash[h01 + iz1] & gradientsMask3D];
+			float3 g111 = gradients3D[hash[h11 + iz1] & gradientsMask3D];
 
 			float v000 = Dot(g000, tx0, ty0, tz0);
 			float v100 = Dot(g100, tx1, ty0, tz0);
@@ -525,11 +562,16 @@ namespace DudeiNoise
 			float tx = Smooth(tx0);
 			float ty = Smooth(ty0);
 			float tz = Smooth(tz0);
-			return Mathf.Lerp(Mathf.Lerp(Mathf.Lerp(v000, v100, tx), Mathf.Lerp(v010, v110, tx), ty),
-							  Mathf.Lerp(Mathf.Lerp(v001, v101, tx), Mathf.Lerp(v011, v111, tx), ty),
+			return math.lerp(math.lerp(math.lerp(v000, v100, tx), math.lerp(v010, v110, tx), ty),
+							  math.lerp(math.lerp(v001, v101, tx), math.lerp(v011, v111, tx), ty),
 							  tz);
 		}
-
+		
+		public static NoiseMethod GetNoiseMethod(NoiseType noiseType, int dimensions)
+		{
+			return methods[(int) noiseType][dimensions - 1];
+		}
+		
 		#endregion Perlin noise
 
 		#region Calculation functions
@@ -539,11 +581,11 @@ namespace DudeiNoise
 			return t * t * t * (t * (t * 6f - 15f) + 10f);
 		}
 
-		private static float Dot (Vector2 g, float x, float y) {
+		private static float Dot (float2 g, float x, float y) {
 			return g.x * x + g.y * y;
 		}
 		
-		private static float Dot (Vector3 g, float x, float y, float z) {
+		private static float Dot (float3 g, float x, float y, float z) {
 			return g.x * x + g.y * y + g.z * z;
 		}
 		

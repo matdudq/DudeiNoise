@@ -12,11 +12,11 @@ namespace DudeiNoise.Editor
 			
 			private float frequencyValue = 0;
 			
-			private bool isNoiseTypeSectionFolded = false;
-			private bool isFrequencySectionFolded = false;
-			private bool isLayersSectionFolded = false;
-			private bool isCustomPatternsSectionFolded = false;
-			private bool isFalloffSectionFolded = false;
+			private bool isNoiseTypeSectionFolded = true;
+			private bool isFrequencySectionFolded = true;
+			private bool isLayersSectionFolded = true;
+			private bool isCustomPatternsSectionFolded = true;
+			private bool isFalloffSectionFolded = true;
 			
 			public TillingTab(NoiseGeneratorWindow owner)
 			{
@@ -27,6 +27,7 @@ namespace DudeiNoise.Editor
 			public void OnTabEnter()
 			{
 				owner.tillingEnabledSP.boolValue = true;
+
 				owner.SetDirty();
 				
 				owner.RegenerateTextures();
@@ -105,6 +106,7 @@ namespace DudeiNoise.Editor
 					
 					GUILayout.BeginHorizontal();
 					
+					frequencyValue = owner.scaleOffsetSP.vector3Value.x;
 					frequencyValue = Mathf.Max(EditorGUILayout.IntField("Frequency", (int)frequencyValue),1);
 
 					owner.tillingPeriodSP.intValue = Mathf.RoundToInt(frequencyValue);

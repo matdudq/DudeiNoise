@@ -10,11 +10,12 @@ namespace DudeiNoise.Editor
 		{
 			private NoiseGeneratorWindow owner;
 
-			private bool isNoiseTypeSectionFolded = false;
-			private bool isSpaceSectionFolded = false;
-			private bool isOctavesSectionFolded = false;
-			private bool isCustomPatternsSectionFolded = false;
-			
+			private bool isNoiseTypeSectionFolded = true;
+			private bool isSpaceSectionFolded = true;
+			private bool isOctavesSectionFolded = true;
+			private bool isCustomPatternsSectionFolded = true;
+			private bool isFalloffSectionFolded = true;
+
 			public CustomSpaceTab(NoiseGeneratorWindow owner)
 			{
 				this.owner = owner;
@@ -143,6 +144,34 @@ namespace DudeiNoise.Editor
 					GUILayout.EndVertical();
 				}
 
+				EditorGUILayout.EndFoldoutHeaderGroup();
+			}
+			
+			private void DrawFalloffSection()
+			{
+				isFalloffSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isFalloffSectionFolded, owner.falloffSectionHeaderGC);
+				
+				if (isFalloffSectionFolded)
+				{
+					GUILayout.BeginVertical(owner.sectionStyle);
+					GUILayout.Space(10);
+					
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffEnabledSP);
+					GUILayout.EndHorizontal();
+
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffParameterSP);
+					GUILayout.EndHorizontal();
+					
+					GUILayout.BeginHorizontal();
+					EditorGUILayout.PropertyField(owner.falloffShiftSP);
+					GUILayout.EndHorizontal();
+					
+					GUILayout.Space(10);
+					GUILayout.EndVertical();
+				}
+				
 				EditorGUILayout.EndFoldoutHeaderGroup();
 			}
 		}

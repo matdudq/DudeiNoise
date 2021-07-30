@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DudeiNoise.Editor
 {
@@ -8,7 +9,9 @@ namespace DudeiNoise.Editor
 	{
 		#region Variables
 
-		private Texture2D texture = null;
+		private NoiseTexture noiseTexture = null;
+
+		private NoiseTextureChannel textureChannel = NoiseTextureChannel.RED;
 		
 		private static Vector2 windowSize = new Vector2(400, 400);
 
@@ -32,8 +35,7 @@ namespace DudeiNoise.Editor
 			GUILayout.EndHorizontal();
 			GUILayout.FlexibleSpace();
 			GUILayout.EndArea();
-			
-			
+
 			EditorGUILayout.EndVertical();
 		}
 
@@ -41,48 +43,33 @@ namespace DudeiNoise.Editor
 		
 		#region Public methods
 
-		public static TextureWindow GetWindow(Vector2 position, string name, int resolution, FilterMode mode)
+		public static TextureWindow GetWindow(Vector2 position, string name, NoiseTexture noiseTexture)
 		{
 			TextureWindow window = GetWindow<TextureWindow>(name);
 			window.titleContent = new GUIContent(name);
 			window.position = new Rect(position.x,position.y,windowSize.x, windowSize.y);
 			window.minSize = windowSize;
 			window.maxSize = windowSize;
-			window.texture = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false)
-			{
-				name = "Noise",
-				filterMode = mode,
-				wrapMode = TextureWrapMode.Clamp
-			};
+			window.noiseTexture = noiseTexture;
 			
 			window.Show();
 
 			return window;
 		}
 
-		public void UpdateTexture(Color[] textureArray, int resolution, FilterMode mode)
+		public void RepaintForChannel(NoiseTextureChannel textureChannel)
 		{
-			if (texture.filterMode != mode)
-			{
-				texture.filterMode = mode;
-			}
-			
-			if (texture.width != resolution)
-			{
-				texture.Resize( resolution, resolution);
-			}
-			
-			texture.SetPixels(textureArray);
-			texture.Apply();
+			this.textureChannel = textureChannel;
+			Repaint();
 		}
-
+		
 		#endregion Public methods
 		
 		#region Private methods
-
+		
 		private void DisplayTextureOfType(Rect displayArea)
 		{
-			EditorGUI.DrawPreviewTexture(displayArea,texture);
+			EditorGUI.DrawPreviewTexture(displayArea,noiseTexture.Texture,null ,ScaleMode.ScaleAndCrop,1,0,textureChannel.ToColorWriteMask());
 		}
 
 		#endregion Private methods

@@ -57,11 +57,11 @@ namespace DudeiNoise.Editor
 	        lacunaritySP = CurrentNoiseSettingsSP.FindPropertyRelative("lacunarity");
 	        persistenceSP = CurrentNoiseSettingsSP.FindPropertyRelative("persistence");
 	        woodPatternMultiplierSP = CurrentNoiseSettingsSP.FindPropertyRelative("woodPatternMultiplier");
-	        turbulenceSP = CurrentNoiseSettingsSP.FindPropertyRelative("turbulence");
+	        turbulenceSP = CurrentNoiseSettingsSP.FindPropertyRelative("turbulenceEnabled");
 	        noiseTypeSP = CurrentNoiseSettingsSP.FindPropertyRelative("noiseType");
 	        tillingPeriodSP = CurrentNoiseSettingsSP.FindPropertyRelative("tillingPeriod");
 			falloffEnabledSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffEnabled");
-			falloffParameterSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffParameter");
+			falloffParameterSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffDensity");
 			falloffShiftSP = CurrentNoiseSettingsSP.FindPropertyRelative("falloffShift");
 		}
 
