@@ -1,6 +1,4 @@
-﻿using DudeiNoise.Editor;
-using DudeiNoise.Editor.Utilities;
-using UnityEditor.Callbacks;
+﻿using DudeiNoise.Editor.Utilities;
 using UnityEngine;
 
 namespace DudeiNoise
@@ -16,7 +14,7 @@ namespace DudeiNoise
 		[Range(4,256), Tooltip("Resolution of rendered texture.")]
 		public int resolution = 256;
 		
-		[Tooltip("Filter mode of rendered texture. Good to see different ways of filtering to se how noise works.")]
+		[Tooltip("Filter mode of rendered texture. Good to see different ways of filtering to see how noise works.")]
 		public FilterMode filterMode = FilterMode.Point;
 		
 		public NoiseSettings redChannelNoiseSettings = null;

@@ -1,18 +1,34 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DudeiNoise.Editor.Utilities;
 using Unity.Collections;
-using UnityEditor;
+using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace DudeiNoise
 {
-	public class NoiseTexture
+	public partial class NoiseTexture
 	{
-		#region Variables
-
-		private NoiseTextureSettings settings = null;
+		private class NoiseSettingsWithChannel
+		{
+			public NoiseSettings noiseSettings = null;
+			public NoiseTextureChannel textureChannel = default;
+			public Action<NoiseTexture> onCompleted = null;
+		}
 		
-		private Texture2D texture = null;
+		#region Variables
+		
+		private readonly Texture2D texture = null;
 
+		private NoiseSettingsWithChannel cachedNoiseSettingsWithChannel = null; 
+		
+		private GenerateNoiseMapJob generateNoiseMapJob;
+		
+		private bool isJobCompleted = true;
+		
 		#endregion Variables
 
 		#region Properties
@@ -24,144 +40,184 @@ namespace DudeiNoise
 				return texture;
 			}
 		}
-		
 
+		public int Resolution
+		{
+			get
+			{
+				return math.min(texture.width, texture.height);
+			}
+		}
+		
+		private NativeArray<Color> Pixels
+		{
+			get
+			{
+				return texture.GetRawTextureData<Color>();
+			}
+		}
+		
 		#endregion Properties
+
+		#region Operator overloads
+
+		public Color this[int key]
+		{
+			get
+			{
+				return Pixels[key];
+			}
+		}
+
+		#endregion Operator overloads
 		
 		#region Constructor
 		
-		public NoiseTexture(NoiseTextureSettings generatorSettings)
+		public NoiseTexture(int resolution)
 		{
-			this.settings = generatorSettings;
-			texture = new Texture2D(settings.resolution, settings.resolution, TextureFormat.RGBA32, false)
+			//TODO: HOW TO HANDLE MORE THAT ONE TYPE
+			texture = new Texture2D(resolution, resolution, TextureFormat.RGBAFloat, false)
 			{
-				name = "Noise",
-				filterMode = settings.filterMode,
+				filterMode = FilterMode.Bilinear,
 				wrapMode = TextureWrapMode.Clamp
 			};
 			
-			UpdateTextureChannel(NoiseTextureChannel.ALPHA);
+			CreateJobs();
 		}
 		
 		#endregion
 
 		#region Public methods
+		
+		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, MonoBehaviour context, Action<NoiseTexture> onComplete = null)
+        {
+	        if (!isJobCompleted)
+	        {
+		        cachedNoiseSettingsWithChannel = new NoiseSettingsWithChannel()
+		        {
+			        noiseSettings = noiseSettings,
+			        textureChannel = noiseChannel,
+			        onCompleted = onComplete
+		        };
+		        return;
+	        }
+			
+	        UpdateJobData(noiseSettings, noiseChannel);
 
-		public float GetRedChanelProbe(float x, float y)
-		{
-			x = Mathf.Clamp01(x);
-			y = Mathf.Clamp01(y);
+	        int pixelsCount = Pixels.Length;
+	        int batchCount = pixelsCount / 6;
+	        
+	        isJobCompleted = false;
+	        generateNoiseMapJob.ScheduleAsync(pixelsCount, batchCount, context, OnCompleteWrapped);
 			
-			return texture.GetPixelBilinear(x, y).r;
-		}
-		
-		public float GetGreenChanelProbe(float x, float y)
-		{
-			x = Mathf.Clamp01(x);
-			y = Mathf.Clamp01(y);
-			
-			return texture.GetPixelBilinear(x, y).g;
-		}
-		
-		public float GetBlueChanelProbe(float x, float y)
-		{
-			x = Mathf.Clamp01(x);
-			y = Mathf.Clamp01(y);
-			
-			return texture.GetPixelBilinear(x, y).b;
-		}
-		
-		public float GetAlphaChanelProbe(float x, float y)
-		{
-			x = Mathf.Clamp01(x);
-			y = Mathf.Clamp01(y);
-			
-			return texture.GetPixelBilinear(x, y).a;
-		}
-		
-		public Color GetProbe(float x, float y)
-		{
-			x = Mathf.Clamp01(x);
-			y = Mathf.Clamp01(y);
-			
-			return texture.GetPixelBilinear(x, y);
-		}
-		
-		public void SaveTexture()
-		{
-			if (settings.exportFolder.IsAssigned)
-			{
-				File.WriteAllBytes(ConstructSavePath(), texture.EncodeToPNG());
-				AssetDatabase.Refresh();
-			}
-			else
-			{
-				Debug.LogError("Cannot save texture! Export folder not set up.");
-			}
-		}
-		
-		public void UpdateTextureChannel(NoiseTextureChannel noiseTextureChannel)
-		{			
-			int currentResolution = settings.resolution;
-			float[,] noiseBuffer = new float[currentResolution,currentResolution];
-			
-			if (texture.width != currentResolution)
-			{
-				texture.Resize( currentResolution, currentResolution);
-			}
-
-			if (texture.filterMode != settings.filterMode)
-			{
-				texture.filterMode = settings.filterMode;
-			}
-
-			NoiseSettings noiseSettings = settings.GetNoiseSettingsForChannel(noiseTextureChannel);
-			Noise.GenerateNoiseMap(ref noiseBuffer, noiseSettings);
-			
-			NativeArray<Color32> textureValues = texture.GetRawTextureData<Color32>();
-			
-			for (int y = 0; y < currentResolution; y++)
-			{
-				for (int x = 0; x < currentResolution; x++)
-				{
-					Color color = textureValues[y * currentResolution + x];
+	        void OnCompleteWrapped(GenerateNoiseMapJob noiseMapJob)
+	        {
+		        texture.Apply();
+		        onComplete?.Invoke(this);
+		        isJobCompleted = true;
+				
+		        if (cachedNoiseSettingsWithChannel != null)
+		        {
+			        NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
+			        NoiseTextureChannel cachedTextureChannel = cachedNoiseSettingsWithChannel.textureChannel;
+			        Action<NoiseTexture> cachedOnComplete = cachedNoiseSettingsWithChannel.onCompleted;
 					
-					switch (noiseTextureChannel)
-					{
-						case NoiseTextureChannel.RED:
-							color.r = noiseBuffer[x,y];
-							break;
-						case NoiseTextureChannel.GREEN:
-							color.g = noiseBuffer[x,y];
-							break;
-						case NoiseTextureChannel.BLUE:
-							color.b = noiseBuffer[x,y];
-							break;
-						case NoiseTextureChannel.ALPHA:
-							color.a = noiseBuffer[x,y];
-							break;
-					}
+			        cachedNoiseSettingsWithChannel = null;
 
-					textureValues[y * currentResolution + x] = color;
-				}
-			}
-
+			        GenerateNoiseForChanelAsync(cachedNoiseSettings, cachedTextureChannel, context, cachedOnComplete);
+		        }
+	        }
+        }
+		
+		public void GenerateNoiseForChanelImmediately(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel)
+		{
+			UpdateJobData(noiseSettings, noiseChannel);
+			
+			int pixelsCount = Pixels.Length;
+			int batchCount = pixelsCount / 6;
+			
+			JobHandle handle = generateNoiseMapJob.Schedule(pixelsCount, batchCount);
+			handle.Complete();
+			
 			texture.Apply();
 		}
+		
+#if UNITY_EDITOR
+		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, Object context, Action<NoiseTexture> onComplete = null)
+		{
+			if (!isJobCompleted)
+			{
+				cachedNoiseSettingsWithChannel = new NoiseSettingsWithChannel()
+				{
+					noiseSettings = noiseSettings,
+					textureChannel = noiseChannel,
+					onCompleted = onComplete
+				};
+				return;
+			}
+			
+			UpdateJobData(noiseSettings, noiseChannel);
+
+			int pixelsCount = Pixels.Length;
+			int batchCount = pixelsCount / 6;
+            
+			generateNoiseMapJob.ScheduleEditorAsync(pixelsCount, batchCount, context, OnCompleteWrapped);
+			isJobCompleted = false;
+			
+			void OnCompleteWrapped(GenerateNoiseMapJob noiseMapJob)
+			{
+				texture.Apply();
+				onComplete?.Invoke(this);
+				isJobCompleted = true;
+				
+				if (cachedNoiseSettingsWithChannel != null)
+				{
+					NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
+					NoiseTextureChannel cachedTextureChannel = cachedNoiseSettingsWithChannel.textureChannel;
+					Action<NoiseTexture> cachedOnComplete = cachedNoiseSettingsWithChannel.onCompleted;
+					
+					cachedNoiseSettingsWithChannel = null;
+
+					GenerateNoiseForChanelAsync(cachedNoiseSettings, cachedTextureChannel, context, cachedOnComplete);
+				}
+			}
+		}
+#endif
 
 		#endregion Public methods
 
 		#region Private methods
-		
-		private string ConstructSavePath()
+
+		private void CreateJobs()
 		{
-			return settings.exportFolder.Path + $"/Red_{settings.alphaChannelNoiseSettings.noiseType}{settings.alphaChannelNoiseSettings.dimensions}D"
-			                                  + $"Green_{settings.alphaChannelNoiseSettings.noiseType}{settings.alphaChannelNoiseSettings.dimensions}D"
-			                                  + $"Blue_{settings.alphaChannelNoiseSettings.noiseType}{settings.alphaChannelNoiseSettings.dimensions}D"
-			                                  + $"Alpha_{settings.alphaChannelNoiseSettings.noiseType}{settings.alphaChannelNoiseSettings.dimensions}D"
-			                                  + $"_Noise_{settings.resolution}.png";
+			generateNoiseMapJob = new GenerateNoiseMapJob()
+			{
+				noiseTextureData = Pixels
+			};
 		}
 
-		#endregion Private methods
+		private void UpdateJobData(NoiseSettings noiseSettings, NoiseTextureChannel noiseTextureChannel)
+		{
+			generateNoiseMapJob.noiseType = noiseSettings.noiseType;
+			generateNoiseMapJob.channelToOverride = noiseTextureChannel;
+			generateNoiseMapJob.dimensions = noiseSettings.dimensions;
+			generateNoiseMapJob.positionOffset = noiseSettings.positionOffset;
+			generateNoiseMapJob.rotationOffset= noiseSettings.rotationOffset;
+			generateNoiseMapJob.scaleOffset= noiseSettings.scaleOffset;
+			generateNoiseMapJob.tillingPeriod = noiseSettings.tillingPeriod;
+			generateNoiseMapJob.tillingEnabled = noiseSettings.tillingEnabled;
+			generateNoiseMapJob.octaves = noiseSettings.octaves;
+			generateNoiseMapJob.lacunarity = noiseSettings.lacunarity;
+			generateNoiseMapJob.persistence = noiseSettings.persistence;
+			generateNoiseMapJob.woodPatternMultiplier = noiseSettings.woodPatternMultiplier;
+			generateNoiseMapJob.turbulenceEnabled = noiseSettings.turbulenceEnabled;
+			generateNoiseMapJob.falloffEnabled = noiseSettings.falloffEnabled;
+			generateNoiseMapJob.falloffShift = noiseSettings.falloffShift;
+			generateNoiseMapJob.falloffDensity = noiseSettings.falloffDensity;
+			generateNoiseMapJob.resolution = Resolution;
+			generateNoiseMapJob.noiseTextureData = Pixels;
+		}
+		
+		#endregion Private methodsS
 	}
 }

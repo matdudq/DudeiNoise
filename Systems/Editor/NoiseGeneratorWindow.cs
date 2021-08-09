@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using DudeiNoise.Editor.Utilities;
-using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -126,8 +125,8 @@ namespace DudeiNoise.Editor
 			greenChanelSettingsProperty  = textureSettingsEditor.serializedObject.FindProperty("greenChannelNoiseSettings");
 			blueChanelSettingsProperty  = textureSettingsEditor.serializedObject.FindProperty("blueChannelNoiseSettings");
 			alphaChanelSettingsProperty  = textureSettingsEditor.serializedObject.FindProperty("alphaChannelNoiseSettings");
-			
-			noiseTexture = new NoiseTexture(settings);
+
+			noiseTexture = new NoiseTexture(settings.resolution);
 			textureWindow = TextureWindow.GetWindow(new Vector2(500,0),"Noise Texture", noiseTexture);
 			
 			InitielizeContents();
@@ -258,11 +257,11 @@ namespace DudeiNoise.Editor
 			
 			if (GUILayout.Button(saveTextureButtonGC))
 			{
-				noiseTexture.SaveTexture();
+				noiseTexture.SaveTextureAtFolder(settings.exportFolder);
 			}
 		}
 		
-		private void ChangeChannel(NoiseTextureChannel channel, bool regenerateTexture = true)
+		private void ChangeChannel(NoiseTextureChannel channel)
 		{
 			activeNoiseTextureChannel = channel;
 
@@ -272,8 +271,12 @@ namespace DudeiNoise.Editor
 		
 		private void RegenerateTextures()
 		{
-			noiseTexture.UpdateTextureChannel(activeNoiseTextureChannel);
-			textureWindow.RepaintForChannel(activeNoiseTextureChannel);
+			noiseTexture.GenerateNoiseForChanelAsync(settings.GetNoiseSettingsForChannel(activeNoiseTextureChannel), activeNoiseTextureChannel, this , OnNoiseGenerated);
+
+			void OnNoiseGenerated(NoiseTexture texture)
+			{
+				textureWindow.RepaintForChannel(activeNoiseTextureChannel);
+			}
 		}
 		private void SetDirty()
 		{

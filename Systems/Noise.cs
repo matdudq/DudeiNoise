@@ -1,14 +1,9 @@
-﻿using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine;
-using Utilities;
 
 namespace DudeiNoise
 {
-	public delegate float NoiseMethod(float3 point, int tillingPeriod, bool tillingEnabled);
-
-	public static partial class Noise
+	public static class Noise
 	{
 		#region Variables
 		
@@ -123,10 +118,6 @@ namespace DudeiNoise
 		public static void GenerateNoiseMap(ref float[,] noiseMap, NoiseSettings noiseSettings)
 		{ 
 			int resolution = math.min(noiseMap.GetLength(0), noiseMap.GetLength(1));
-
-			NativeArray<float3> points = new NativeArray<float3>(resolution * resolution, Allocator.TempJob);
-			NativeArray<float2> localPoints = new NativeArray<float2>(resolution * resolution, Allocator.TempJob);
-			NativeArray<float> noiseMapResult = new NativeArray<float>(resolution * resolution, Allocator.TempJob);
 			
 			Matrix4x4 noiseTRS = float4x4.TRS(noiseSettings.positionOffset, quaternion.Euler(noiseSettings.rotationOffset), noiseSettings.scaleOffset);
 			
@@ -144,44 +135,10 @@ namespace DudeiNoise
 				
 				for (int x = 0; x < resolution; x++)
 				{
-					points[x + resolution * y] =  math.lerp(point0,point1, x * stepSize);
-					localPoints[x + resolution * y] = new float2(x, y);
+					float3 currentPoint = math.lerp(point0, point1, x * stepSize);
+					noiseMap[x, y] = GetProbe(currentPoint,noiseSettings);
 				}
 			}
-			
-			GenerateNoiseMapJob generateNoiseMapJob = new GenerateNoiseMapJob()
-			{
-				noiseType = noiseSettings.noiseType,
-				dimensions = noiseSettings.dimensions,
-				tillingPeriod = noiseSettings.tillingPeriod,
-				tillingEnabled = noiseSettings.tillingEnabled,
-				octaves = noiseSettings.octaves,
-				lacunarity = noiseSettings.lacunarity,
-				persistence = noiseSettings.persistence,
-				woodPatternMultiplier = noiseSettings.woodPatternMultiplier,
-				turbulenceEnabled = noiseSettings.turbulenceEnabled,
-				falloffEnabled = noiseSettings.falloffEnabled,
-				falloffShift = noiseSettings.falloffShift,
-				falloffDensity = noiseSettings.falloffDensity,
-				points = points,
-				localPoints =  localPoints,
-				noiseMapResult = noiseMapResult,
-				resolution = resolution
-			};
-
-			int arrayLength = resolution * resolution;
-			
-			generateNoiseMapJob.ScheduleAndComplete(arrayLength, arrayLength / 6);
-
-			for (int y = 0; y < resolution; y++)
-			{
-				for (int x = 0; x < resolution; x++)
-				{
-					noiseMap[x, y] = generateNoiseMapJob.noiseMapResult[x + resolution * y];
-				}
-			}
-			
-			generateNoiseMapJob.Dispose();
 		}
 		
 		#endregion Public methods

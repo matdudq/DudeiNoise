@@ -4,10 +4,10 @@
 	{
 		#region Values
 		
-		RED = 8,
-		GREEN = 4,
+		RED = 0,
+		GREEN = 1,
 		BLUE = 2,
-		ALPHA = 1
+		ALPHA = 3
 
 		#endregion Values
 	}
