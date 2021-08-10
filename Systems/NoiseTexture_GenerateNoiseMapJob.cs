@@ -6,8 +6,6 @@ using UnityEngine;
 
 namespace DudeiNoise
 {
-    public delegate float NoiseMethod(ref float3 point, int tillingPeriod, bool tillingEnabled);
-    
     public partial class NoiseTexture
     {
         private struct GenerateNoiseMapJob : IJobParallelFor
@@ -215,7 +213,7 @@ namespace DudeiNoise
 
                 if (falloffEnabled)
                 {
-                    probe -= FalloffGenerator.GetFalloffProbe(currentLocal.x, currentLocal.y, falloffDensity, falloffShift, resolution);
+                    probe -= GetFalloffProbe(currentLocal.x, currentLocal.y, falloffDensity, falloffShift, resolution);
                     probe = math.clamp(probe, 0, 1);
                 }
                 
@@ -627,6 +625,22 @@ namespace DudeiNoise
             {
                 int positiveDivident = divident % divisor + divisor;
                 return positiveDivident % divisor;
+            }
+
+            private float GetFalloffProbe(float x, float y, float a, float b, int size)
+            {
+                float normalizedX = math.clamp(x,0,size) / size * 2.0f - 1.0f;
+                float normalizedY = math.clamp(y,0,size) / size * 2.0f - 1.0f;
+			
+                float falloffValue = math.max(Mathf.Abs(normalizedX), math.abs(normalizedY));
+                float falloffTransition = FalloffCurve(falloffValue, a, b);
+			
+                return falloffTransition;
+            }
+            
+            private float FalloffCurve(float value, float a, float b)
+            {
+                return math.pow(value, a) / (math.pow(value, a) + math.pow(b - b * value, a));
             }
 
             #endregion Calculation functions

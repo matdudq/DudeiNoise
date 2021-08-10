@@ -5,6 +5,8 @@ namespace DudeiNoise
 {
 	public static class FalloffGenerator
 	{
+		#region Public methods
+
 		public static float[,] GetFalloffMap(int size, float a, float b)
 		{
 			float[,] falloffMap = new float[size,size];
@@ -29,10 +31,16 @@ namespace DudeiNoise
 			
 			return falloffTransition;
 		}
-		
+
+		#endregion Public methods
+
+		#region Private methods
+
 		private static float FalloffCurve(float value, float a, float b)
 		{
 			return math.pow(value, a) / (math.pow(value, a) + math.pow(b - b * value, a));
 		}
+
+		#endregion Private methods
 	}
 }

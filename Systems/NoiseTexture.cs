@@ -129,20 +129,7 @@ namespace DudeiNoise
 	        }
         }
 		
-		public void GenerateNoiseForChanelImmediately(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel)
-		{
-			UpdateJobData(noiseSettings, noiseChannel);
-			
-			int pixelsCount = Pixels.Length;
-			int batchCount = pixelsCount / 6;
-			
-			JobHandle handle = generateNoiseMapJob.Schedule(pixelsCount, batchCount);
-			handle.Complete();
-			
-			texture.Apply();
-		}
-		
-#if UNITY_EDITOR
+		#if UNITY_EDITOR
 		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, Object context, Action<NoiseTexture> onComplete = null)
 		{
 			if (!isJobCompleted)
@@ -182,8 +169,21 @@ namespace DudeiNoise
 				}
 			}
 		}
-#endif
-
+		#endif
+		
+		public void GenerateNoiseForChanelImmediately(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel)
+		{
+			UpdateJobData(noiseSettings, noiseChannel);
+			
+			int pixelsCount = Pixels.Length;
+			int batchCount = pixelsCount / 6;
+			
+			JobHandle handle = generateNoiseMapJob.Schedule(pixelsCount, batchCount);
+			handle.Complete();
+			
+			texture.Apply();
+		}
+		
 		#endregion Public methods
 
 		#region Private methods

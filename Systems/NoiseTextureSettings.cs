@@ -48,6 +48,5 @@ namespace DudeiNoise
 		}
 
 		#endregion Public methods
-		
 	}
 }

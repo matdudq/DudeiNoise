@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace DudeiNoise
 {
+	public delegate float NoiseMethod(ref float3 point, int tillingPeriod, bool tillingEnabled);
+	
 	public static class Noise
 	{
 		#region Variables
