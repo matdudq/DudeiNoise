@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace DudeiNoise
 {
-    public delegate float NoiseMethod(float3 point, int tillingPeriod, bool tillingEnabled);
+    public delegate float NoiseMethod(ref float3 point, int tillingPeriod, bool tillingEnabled);
     
     public partial class NoiseTexture
     {
@@ -16,32 +16,48 @@ namespace DudeiNoise
 
             #region JobData
 
-            [ReadOnly] public NoiseTextureChannel channelToOverride;
+            [ReadOnly] 
+            public NoiseTextureChannel channelToOverride;
 
-            [ReadOnly] public NoiseType noiseType;
-            [ReadOnly] public int dimensions;
+            [ReadOnly] 
+            public NoiseType noiseType;
+            [ReadOnly] 
+            public int dimensions;
 
+            [ReadOnly] 
+            public float3 positionOffset;
+            [ReadOnly] 
+            public float3 rotationOffset;
+            [ReadOnly] 
+            public float3 scaleOffset;
 
-            [ReadOnly] public float3 positionOffset;
-            [ReadOnly] public float3 rotationOffset;
-            [ReadOnly] public float3 scaleOffset;
+            [ReadOnly] 
+            public int tillingPeriod;
+            [ReadOnly]
+            public bool tillingEnabled;
 
-            [ReadOnly] public int tillingPeriod;
-            [ReadOnly] public bool tillingEnabled;
+            [ReadOnly]
+            public int octaves;
+            [ReadOnly]
+            public float lacunarity;
+            [ReadOnly]
+            public float persistence;
 
-            [ReadOnly] public int octaves;
-            [ReadOnly] public float lacunarity;
-            [ReadOnly] public float persistence;
+            [ReadOnly]
+            public float woodPatternMultiplier;
 
-            [ReadOnly] public float woodPatternMultiplier;
+            [ReadOnly] 
+            public bool turbulenceEnabled;
 
-            [ReadOnly]  public bool turbulenceEnabled;
+            [ReadOnly] 
+            public bool falloffEnabled;
+            [ReadOnly] 
+            public float falloffShift;
+            [ReadOnly] 
+            public float falloffDensity;
 
-            [ReadOnly] public bool falloffEnabled;
-            [ReadOnly] public float falloffShift;
-            [ReadOnly] public float falloffDensity;
-
-            [ReadOnly] public int resolution;
+            [ReadOnly]
+            public int resolution;
             
             public NativeArray<Color> noiseTextureData;
 
@@ -165,6 +181,8 @@ namespace DudeiNoise
 
             #endregion Variables
 
+            #region Public methods
+            
             public void Execute(int index)
             {
                 int2 currentLocal = new int2(index % resolution, (int)math.floor(index / (float)resolution));
@@ -183,7 +201,7 @@ namespace DudeiNoise
                 float3 currentPoint = math.lerp(point0, point1, currentLocal.x * stepSize);
                 
                 float probe = GetProbe(
-                    currentPoint,
+                    ref currentPoint,
                     dimensions,
                     tillingEnabled,
                     tillingPeriod,
@@ -205,21 +223,23 @@ namespace DudeiNoise
                 currentColor[(int)channelToOverride] = probe;
                 noiseTextureData[index] = currentColor;
             }
+
+            #endregion Public methods
             
             #region Private methods
             
-            private static float GetProbe(float3 point, int dimensions, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
+            private float GetProbe(ref float3 point, int dimensions, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
             {
                 NoiseMethod method = GetNoiseMethod(noiseType, dimensions);
 
-                float sum = turbulence ? math.abs(method(point, tillingPeriod, tillingEnabled)) : method(point, tillingPeriod, tillingEnabled);
+                float sum = turbulence ? math.abs(method(ref point, tillingPeriod, tillingEnabled)) : method(ref point, tillingPeriod, tillingEnabled);
                 float amplitude = 1f;
                 float range = amplitude;
 
                 for (int i = 1; i < octaves; i++)
                 {
                     point *= lacunarity;
-                    float currentSample = turbulence ? math.abs(method(point, tillingPeriod, tillingEnabled)) : method(point, tillingPeriod, tillingEnabled);
+                    float currentSample = turbulence ? math.abs(method(ref point, tillingPeriod, tillingEnabled)) : method(ref point, tillingPeriod, tillingEnabled);
 
                     amplitude *= persistence;
                     range += amplitude;
@@ -256,7 +276,7 @@ namespace DudeiNoise
 
             #region Basic noise
 
-            private static float Noise1D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float Noise1D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int i0 = (int) math.floor(point.x);
 
@@ -268,7 +288,7 @@ namespace DudeiNoise
                 return hash[i0 & hashMask] * (1.0f / hashMask);
             }
 
-            private static float Noise2D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float Noise2D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix = (int) math.floor(point.x);
                 int iy = (int) math.floor(point.y);
@@ -282,7 +302,7 @@ namespace DudeiNoise
                 return hash[hash[ix & hashMask] + iy & hashMask] * (1f / hashMask);
             }
 
-            private static float Noise3D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float Noise3D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix = (int) math.floor(point.x);
                 int iy = (int) math.floor(point.y);
@@ -302,7 +322,7 @@ namespace DudeiNoise
 
             #region Value noise
 
-            private static float ValueNoise1D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float ValueNoise1D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int i0 = (int) math.floor(point.x);
 
@@ -328,7 +348,7 @@ namespace DudeiNoise
                 return math.lerp(h0, h1, Smooth(t)) * (1f / hashMask);
             }
 
-            private static float ValueNoise2D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float ValueNoise2D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix0 = (int) math.floor(point.x);
                 int iy0 = (int) math.floor(point.y);
@@ -371,7 +391,7 @@ namespace DudeiNoise
                     yt) * (1f / hashMask);
             }
 
-            private static float ValueNoise3D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float ValueNoise3D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix0 = (int) math.floor(point.x);
                 int iy0 = (int) math.floor(point.y);
@@ -431,7 +451,7 @@ namespace DudeiNoise
 
             #region Perlin noise
 
-            private static float PerlinNoise1D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float PerlinNoise1D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int i0 = (int) math.floor(point.x);
                 float t0 = point.x - i0;
@@ -462,7 +482,7 @@ namespace DudeiNoise
                 return math.lerp(v0, v1, t) * 2.0f;
             }
 
-            private static float PerlinNoise2D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float PerlinNoise2D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix0 = (int) math.floor(point.x);
                 int iy0 = (int) math.floor(point.y);
@@ -511,7 +531,7 @@ namespace DudeiNoise
                     ty) * sqr2;
             }
 
-            private static float PerlinNoise3D(float3 point, int tillingPeriod, bool tillingEnabled)
+            private static float PerlinNoise3D(ref float3 point, int tillingPeriod, bool tillingEnabled)
             {
                 int ix0 = (int) math.floor(point.x);
                 int iy0 = (int) math.floor(point.y);
