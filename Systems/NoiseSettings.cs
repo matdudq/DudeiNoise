@@ -52,5 +52,31 @@ namespace DudeiNoise
 		public static int maximalResolution = 256;
 
 		#endregion Variables
+
+		#region Utilities
+
+		public NoiseSettings Copy()
+		{
+			return new NoiseSettings()
+			{
+				noiseType = this.noiseType,
+				positionOffset = this.positionOffset,
+				rotationOffset = this.rotationOffset,
+				scaleOffset = this.scaleOffset,
+				tillingPeriod = this.tillingPeriod,
+				tillingEnabled = this.tillingEnabled,
+				dimensions = this.dimensions,
+				octaves = this.octaves,
+				lacunarity = this.lacunarity,
+				persistence = this.persistence,
+				woodPatternMultiplier = this.woodPatternMultiplier,
+				turbulenceEnabled = this.turbulenceEnabled,
+				falloffEnabled = false,
+				falloffShift = this.falloffShift,
+				falloffDensity = this.falloffDensity
+			};
+		}
+
+		#endregion Utilities
 	}
 }
