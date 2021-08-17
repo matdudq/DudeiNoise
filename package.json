@@ -9,7 +9,7 @@
     "com.unity.mathematics": "1.2.1",
     "com.unity.editorcoroutines": "1.0.0"
   },
-  "keywords": [ "spline", "curve", "bezier", "editor" ],
+  "keywords": [ "noise", "perlin", "dudei", "editor", "unity", "generator" ],
   "unity": "2020.1",
   "author": {
     "name": "matdudq",
