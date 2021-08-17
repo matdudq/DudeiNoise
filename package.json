@@ -1,13 +1,19 @@
 {
-  "name": "com.matdudq.unity-dudei-noise",
-  "displayName": "Dudei-Noise",
+  "name": "com.matdudq.dudei-noise-editor",
   "version": "1.0.0",
-  "unity": "2020.2.1f1",
-  "description": "Custom noise generation tool with runtime API for Unity Engine.",
-  "dependencies": {
+  "displayName": "Dudei Noise Editor",
+  "description": "Unity Dudei Noise Editor is an open-source tool for creating and defining custom noise textures.",
+  "dependencies":
+  {
+    "com.unity.burst": "1.4.9",
+    "com.unity.mathematics": "1.2.1",
+    "com.unity.editorcoroutines": "1.0.0"
   },
-  "repository": {
-    "type": "git",
+  "keywords": [ "spline", "curve", "bezier", "editor" ],
+  "unity": "2020.1",
+  "author": {
+    "name": "matdudq",
+    "email": "matidudeq@gmail.com",
     "url": "https://github.com/matdudq/DudeiNoise"
   }
 }

@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using DudeiNoise.Editor.Utilities;
+using DudeiNoise.Utilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;

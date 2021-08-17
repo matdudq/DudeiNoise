@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DudeiNoise.Editor.Utilities;
+using DudeiNoise.Utilities;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -128,8 +126,7 @@ namespace DudeiNoise
 		        }
 	        }
         }
-		
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, Object context, Action<NoiseTexture> onComplete = null)
 		{
 			if (!isJobCompleted)

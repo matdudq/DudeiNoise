@@ -1,4 +1,4 @@
-﻿using DudeiNoise.Editor.Utilities;
+﻿using DudeiNoise.Utilities;
 using UnityEngine;
 
 namespace DudeiNoise

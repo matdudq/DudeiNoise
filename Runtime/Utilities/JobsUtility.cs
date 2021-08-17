@@ -7,7 +7,7 @@ using Unity.Jobs;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace DudeiNoise.Editor.Utilities
+namespace DudeiNoise.Utilities
 {
     public static class JobsUtility
     {

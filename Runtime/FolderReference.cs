@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace DudeiNoise.Editor.Utilities
+namespace DudeiNoise.Utilities
 {
     /// <summary>
     /// Folder reference for editor scripts.
