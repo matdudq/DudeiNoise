@@ -60,6 +60,7 @@ Unity 2019.3 or newer.
 https://github.com/matdudq/DudeiNoise
 ```
 2 You can also install Dudei Noise by simply downloading repository zip file and copying Assets folder content to your Unity project.
+3 You can also download tool as sub-module repository.
 
 ## Overview <a name="overview"></a>
 
@@ -67,55 +68,55 @@ https://github.com/matdudq/DudeiNoise
 
 Editor window can be opened by going to `Tools->Noise Generator Window` on the Unity toolbar. Noise texture preview for one individual chanel will also show when enabling editor. Windows can be manipulated separately. Mainly we will be working with generator editor which allows us to define our noise behaviour.
 
- <img src="https://imgur.com/Ttg58K9">
+ <img src="https://i.imgur.com/dsCZO9H.gif">
 
 ### Texture Settings <a name="texture-settings"></a>
 
 In texture settings panel we can manipulate export folder resolution of texture as well as filter mode of exported texture.
 
- <img src="https://imgur.com/dN8UNeC">
+ <img src="https://i.imgur.com/jHc3PGy.png">
 
 ### Space Mode Toolbar <a name="space-mode-toolbar"></a>
 
 Space mode tool bar allows us to define if we want to have tilling texture with only option to manipulate frequency of texture or we wan to have texture with custom space.
 
- <img src="https://imgur.com/I5NDCVr">
+ <img src="https://i.imgur.com/PWRtSZD.gif">
 
 ### Noise Type settings <a name="noise-type-settings"></a>
 
 Noise type options give you choice of noise type that you will be working on. You can choose default which is simple random, value or perlin noise. Except that you can define dimension of noise that you want to generate.
 
- <img src="https://imgur.com/T5GJ5Jh">
+ <img src="https://i.imgur.com/hxTJTQB.gif">
  
 ### Frequency/Custom Space settings  <a name="frequency-space"></a>
 
 Depends on mode that you have chosen here you will be able to manipulate space of noise. Moving rotating or scaling frequency of noise.
 
- <img src="https://imgur.com/mR1N3t9">
+ <img src="https://i.imgur.com/5uq5XSf.gif">
  
  ### Octaves settings  <a name="octaves-settings"></a>
 
 Here you can manipulate all the layers of noise. To use that settings layer efficiently you should play with it a little bit. 
 
- <img src="https://imgur.com/LHEjEZC">
+ <img src="https://i.imgur.com/EGvimei.gif">
  
  ### Custom patterns <a name="custom-patterns"></a>
 
 Custom patterns give us possibility to create really custom noises. Right now wood pattern and turbulence are implemented. To see what they do, you should also play with them.
 
- <img src="https://imgur.com/T12aGPg">  
+ <img src="https://i.imgur.com/WCudLYP.gif">  
 
 ### Falloff settings <a name="falloff-settings"></a>
 
 It is control panel of falloff mask which allows us to create blurred borders of noise - useful for example when use want to create some kind of islands based or noise.
 
- <img src="https://imgur.com/hGstDRn">
+ <img src="https://i.imgur.com/ZHKp8os.gif">
  
 ### Bottom panel <a name="bottom-panel"></a>
 
 Switches that allows you to swap currently working chanel and save the texture.
 
- <img src="https://imgur.com/mXXnUZ9">
+ <img src="https://i.imgur.com/EooqKp7.png">
  
  ## License <a name="license"></a>
  
