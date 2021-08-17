@@ -98,13 +98,13 @@ Depends on mode that you have chosen here you will be able to manipulate space o
 
 Here you can manipulate all the layers of noise. To use that settings layer efficiently you should play with it a little bit. 
 
- <img src="https://i.imgur.com/EGvimei.gif">
+ <img src="https://i.imgur.com/VA2NhKp.gif">
  
  ### Custom patterns <a name="custom-patterns"></a>
 
 Custom patterns give us possibility to create really custom noises. Right now wood pattern and turbulence are implemented. To see what they do, you should also play with them.
 
- <img src="https://i.imgur.com/WCudLYP.gif">  
+ <img src="https://i.imgur.com/adXKoUb.gif">  
 
 ### Falloff settings <a name="falloff-settings"></a>
 
