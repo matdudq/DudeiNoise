@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using DudeiNoise.Utilities;
 using UnityEditor;
 using UnityEngine;
@@ -12,19 +13,27 @@ namespace DudeiNoise
 
         public static void SaveTextureAtFolder(this NoiseTexture noiseTexture, FolderReference folder)
         {
-            if (folder.IsAssigned)
+            if (!folder.IsAssigned)
             {
-                File.WriteAllBytes(ConstructSavePath(), noiseTexture.Texture.EncodeToPNG());
-                AssetDatabase.Refresh();
-            }
-            else
-            {
-                Debug.LogError("Cannot save texture! Export folder not set up.");
+                Debug.LogError("Cannot save texture at not defined folder reference! Texture exported into Assets Folder.");
+
             }
 
+            File.WriteAllBytes(ConstructSavePath(), noiseTexture.Texture.EncodeToPNG());
+            AssetDatabase.Refresh();
+            
             string ConstructSavePath()
             {
-                return Path.Combine(folder.Path, noiseTexture.Texture.name);
+                string fileName = "ExportedTexture.png";
+                
+                if (folder.IsAssigned)
+                {
+                    return Path.Combine(folder.Path, fileName);
+                }
+                else
+                {
+                    return Path.Combine(Application.dataPath,fileName);
+                }
             }
         }
 
