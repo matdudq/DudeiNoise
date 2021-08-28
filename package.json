@@ -1,6 +1,6 @@
 {
   "name": "com.matdudq.dudei-noise-editor",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "displayName": "Dudei Noise Editor",
   "description": "Unity Dudei Noise Editor is an open-source tool for creating and defining custom noise textures.",
   "dependencies":

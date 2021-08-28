@@ -5,3 +5,5 @@
 - Burst support 
 
 
+## v1.0.2 [28.08.2021]
+- Resizing texture support
