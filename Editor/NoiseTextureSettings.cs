@@ -11,7 +11,7 @@ namespace DudeiNoise
 		[Tooltip("Folder where textures will be saved.")]
 		public FolderReference exportFolder = new FolderReference();
 
-		[Range(4,256), Tooltip("Resolution of rendered texture.")]
+		[Range(4,2048), Tooltip("Resolution of rendered texture.")]
 		public int resolution = 256;
 		
 		[Tooltip("Filter mode of rendered texture. Good to see different ways of filtering to see how noise works.")]

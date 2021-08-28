@@ -61,7 +61,7 @@ namespace DudeiNoise.Editor
 			window.minSize = windowSize;
 			window.maxSize = windowSize;
 			window.noiseTexture = noiseTexture;
-			window.displayMaterial = LoadDisplayMaterial();
+			window.displayMaterial = Instantiate(LoadDisplayMaterial());
 			window.Show();
 
 			return window;

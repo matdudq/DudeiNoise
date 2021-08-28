@@ -59,8 +59,8 @@ namespace DudeiNoise.Editor
 	            EditorGUI.BeginChangeCheck();
 				
 	            EditorGUILayout.PropertyField(exportFolderSP);
-	            //TODO: EditorGUILayout.PropertyField(resolutionSP); 
-	            //TODO: EditorGUILayout.PropertyField(filterModeSP);
+	            EditorGUILayout.PropertyField(resolutionSP); 
+	            EditorGUILayout.PropertyField(filterModeSP);
 				
 	            EditorGUILayout.Space();
 				

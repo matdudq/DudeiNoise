@@ -62,11 +62,32 @@ namespace DudeiNoise
 				onComplete?.Invoke(this);
 			}
 		}
+
+		public void Resize(int newResolution)
+		{
+			if (newResolution == Resolution)
+			{
+				return;
+			}
+			
+			texture.Resize(newResolution,newResolution);
+
+			noiseTextureJobManager.UpdateJobTextureData(texture.GetRawTextureData<Color>(), Resolution);
+		}
+
+		public void SetFilterMode(FilterMode filterMode)
+		{
+			if (texture.filterMode == filterMode)
+			{
+				return;
+			}
+
+			texture.filterMode = filterMode;
+		}
 		
 		#endregion Public methods
 
 		#region Editor methods
-
 
 		public void GenerateNoiseForChanelInEditor(NoiseSettings noiseSettings, NoiseTextureChannel  noiseChannel, UnityEngine.Object context, Action<NoiseTexture> onComplete = null)
 		{

@@ -274,6 +274,8 @@ namespace DudeiNoise.Editor
 		
 		private void RegenerateTextures()
 		{
+			noiseTexture.Resize(settings.resolution);
+			noiseTexture.SetFilterMode(settings.filterMode);
 			noiseTexture.GenerateNoiseForChanelInEditor(settings.GetNoiseSettingsForChannel(activeNoiseTextureChannel), activeNoiseTextureChannel, this , OnNoiseGenerated);
 
 			void OnNoiseGenerated(NoiseTexture texture)

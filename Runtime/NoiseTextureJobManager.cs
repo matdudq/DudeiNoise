@@ -42,15 +42,20 @@ namespace DudeiNoise
 
 		public NoiseTextureJobManager(NativeArray<Color> texturePixels, int resolution)
 		{
-			this.texturePixels = texturePixels;
-			this.resolution = resolution;
-			
-			CreateJobs(this.texturePixels);
+			UpdateJobTextureData(texturePixels, resolution);
 		}
 
 		#endregion Constructors
 		
 		#region Public methods
+
+		public void UpdateJobTextureData(NativeArray<Color> texturePixels, int resolution)
+		{
+			this.texturePixels = texturePixels;
+			this.resolution = resolution;
+			
+			CreateJobs(this.texturePixels);
+		}
 		
 		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, MonoBehaviour context, Action onComplete = null)
         {
