@@ -24,9 +24,6 @@ namespace DudeiNoise
 		[Tooltip("Enables or disables noise tilling.")]
 		public bool tillingEnabled = false;
 		
-		[Range(1,3), Tooltip("Dimension in which noise will be generated.")]
-		public int dimensions = 3;
-		
 		[Range(1, 8), Tooltip("Octaves represents count of noise layers - iterations sub noises.")]
 		public int octaves = 1;
 		[Range(1f, 4f), Tooltip("Lacunarity is multiplier for texture frequency during each sum iteration.")]
@@ -48,8 +45,6 @@ namespace DudeiNoise
 		
 		[Tooltip("Controls falloff map density.")]
 		public float falloffDensity = 2.2f;
-		
-		public static int maximalResolution = 256;
 
 		#endregion Variables
 
@@ -65,7 +60,6 @@ namespace DudeiNoise
 				scaleOffset = this.scaleOffset,
 				tillingPeriod = this.tillingPeriod,
 				tillingEnabled = this.tillingEnabled,
-				dimensions = this.dimensions,
 				octaves = this.octaves,
 				lacunarity = this.lacunarity,
 				persistence = this.persistence,

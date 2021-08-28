@@ -1,5 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine;
 
 namespace DudeiNoise
@@ -9,29 +8,11 @@ namespace DudeiNoise
 	public static class Noise
 	{
 		#region Variables
-		
-		private static readonly NoiseMethod[] basicMethods = {
-			Noise1D,
-			Noise2D,
-			Noise3D
-		};
-		
-		private static readonly NoiseMethod[] valueMethods = {
-			ValueNoise1D,
-			ValueNoise2D,
-			ValueNoise3D
-		};
-		
-		private static readonly NoiseMethod[] perlinMethods = {
-			PerlinNoise1D,
-			PerlinNoise2D,
-			PerlinNoise3D
-		};
 
-		public static NoiseMethod[][] methods = {
-			basicMethods,
-			valueMethods,
-			perlinMethods
+		public static NoiseMethod[] methods = {
+			Noise3D,
+			ValueNoise3D,
+			PerlinNoise3D
 		};
 		
 		private static readonly int[] hash = {
@@ -150,16 +131,16 @@ namespace DudeiNoise
 		
 		private static float GetProbe(float3 point, NoiseSettings generatorSettings)
 		{
-			return GetProbe(point, generatorSettings.dimensions,
+			return GetProbe(point,
 							generatorSettings.tillingEnabled, generatorSettings.tillingPeriod,
 							generatorSettings.octaves, generatorSettings.lacunarity, 
 							generatorSettings.persistence, generatorSettings.turbulenceEnabled, 
 							generatorSettings.noiseType,generatorSettings.woodPatternMultiplier);
 		}
 
-		private static float GetProbe (float3 point, int dimensions, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
+		private static float GetProbe (float3 point, bool tillingEnabled, int tillingPeriod, int octaves, float lacunarity, float persistence, bool turbulence, NoiseType noiseType, float woodPatternMultiplier)
 		{
-			NoiseMethod method = GetNoiseMethod(noiseType, dimensions);
+			NoiseMethod method = GetNoiseMethod(noiseType);
 			
 			float sum = turbulence ? math.abs(method(ref point,tillingPeriod,tillingEnabled)) : method(ref point,tillingPeriod,tillingEnabled);
 			float amplitude = 1f;
@@ -204,33 +185,7 @@ namespace DudeiNoise
 		}
 		
 		#region Basic noise
-
-		private static float Noise1D (ref float3 point, int tillingPeriod , bool tillingEnabled )
-		{
-			int i0 = (int)math.floor(point.x);
-			
-			if (tillingEnabled)
-			{
-				i0 = PositiveModulo(i0, tillingPeriod);
-			}
-			
-			return hash[i0 & hashMask] * (1.0f / hashMask);
-		}
 		
-		private static float Noise2D (ref float3 point, int tillingPeriod, bool tillingEnabled) 
-		{
-			int ix = (int)math.floor(point.x);
-			int iy = (int)math.floor(point.y);
-			
-			if (tillingEnabled)
-			{
-				ix = PositiveModulo(ix, tillingPeriod);
-				iy = PositiveModulo(iy, tillingPeriod);
-			}
-			
-			return hash[hash[ix & hashMask] + iy & hashMask] * (1f / hashMask);
-		}
-
 		private static float Noise3D (ref float3 point, int tillingPeriod, bool tillingEnabled)
 		{
 			int ix = (int)math.floor(point.x);
@@ -250,76 +205,7 @@ namespace DudeiNoise
 		#endregion Basic noise
 
 		#region Value noise
-
-		private static float ValueNoise1D (ref float3 point, int tillingPeriod, bool tillingEnabled)
-		{
-			int i0 = (int)math.floor(point.x);
-			
-			float t = point.x - i0;
-			
-			if (tillingEnabled)
-			{
-				i0 = PositiveModulo(i0, tillingPeriod);
-			}
-
-			i0 &= hashMask;
-			
-			int i1 = i0 + 1;
-
-			if (tillingEnabled)
-			{
-				i1 = PositiveModulo(i1, tillingPeriod);
-			}
-
-			int h0 = hash[i0];
-			int h1 = hash[i1];
-
-			return math.lerp(h0, h1, Smooth(t)) * (1f / hashMask);
-		}
-
-		private static float ValueNoise2D(ref float3 point, int tillingPeriod, bool tillingEnabled)
-		{
-			int ix0 = (int)math.floor(point.x);
-			int iy0 = (int)math.floor(point.y);
-
-			float xt = point.x - ix0;
-			float yt = point.y - iy0;
-			
-			if (tillingEnabled)
-			{
-				ix0 = PositiveModulo(ix0, tillingPeriod);
-				iy0 = PositiveModulo(iy0, tillingPeriod);
-			}
-			
-			ix0 &= hashMask;
-			iy0 &= hashMask;
-
-			int ix1 = ix0 + 1;
-			int iy1 = iy0 + 1;
-
-			if (tillingEnabled)
-			{
-				ix1 = PositiveModulo(ix1, tillingPeriod);
-				iy1 = PositiveModulo(iy1, tillingPeriod);
-			}
-
-			
-			int h0 = hash[ix0];
-			int h1 = hash[ix1];
-
-			int h00 = hash[h0 + iy0];
-			int h10 = hash[h1 + iy0];
-			int h01 = hash[h0 + iy1];
-			int h11 = hash[h1 + iy1];
-
-			xt = Smooth(xt);
-			yt = Smooth(yt);
-			
-			return math.lerp(math.lerp(h00, h10, xt),
-							  math.lerp(h01, h11, xt),
-							  yt) * (1f / hashMask);
-		}
-
+		
 		private static float ValueNoise3D (ref float3 point, int tillingPeriod, bool tillingEnabled) 
 		{
 			int ix0 = (int)math.floor(point.x);
@@ -379,86 +265,7 @@ namespace DudeiNoise
 		#endregion Value noise
 
 		#region Perlin noise
-
-		private static float PerlinNoise1D(ref float3 point, int tillingPeriod, bool tillingEnabled)
-		{
-			int i0 = (int)math.floor(point.x);
-			float t0 = point.x - i0;
-			float t1 = t0 - 1.0f;
-
-			if (tillingEnabled)
-			{
-				i0 = PositiveModulo(i0, tillingPeriod);
-			}
-			
-			i0 &= hashMask;
-			
-			int i1 = i0 + 1;
-
-			if (tillingEnabled)
-			{
-				i1 = PositiveModulo(i1, tillingPeriod);
-			}
-
-			float g0 = gradients1D[hash[i0] & gradientsMask1D];
-			float g1 = gradients1D[hash[i1] & gradientsMask1D];
-
-			float v0 = g0 * t0;
-			float v1 = g1 * t1;
-
-			float t = Smooth(t0);
-			
-			return math.lerp(v0,v1, t) * 2.0f;
-		}
-		private static float PerlinNoise2D(ref float3 point, int tillingPeriod, bool tillingEnabled)
-		{
-			int ix0 = (int)math.floor(point.x);
-			int iy0 = (int)math.floor(point.y);
-			
-			float tx0 = point.x - ix0;
-			float ty0 = point.y - iy0;
-			float tx1 = tx0 - 1f;
-			float ty1 = ty0 - 1f;
-			
-			if (tillingEnabled)
-			{
-				ix0 = PositiveModulo(ix0, tillingPeriod);
-				iy0 = PositiveModulo(iy0, tillingPeriod);
-			}
-
-			ix0 &= hashMask;
-			iy0 &= hashMask;
-			
-			int ix1 = ix0 + 1;
-			int iy1 = iy0 + 1;
-
-			if (tillingEnabled)
-			{
-				ix1 = PositiveModulo(ix1, tillingPeriod);
-				iy1 = PositiveModulo(iy1, tillingPeriod);
-			}
-
-			int h0 = hash[ix0];
-			int h1 = hash[ix1];
-			
-			float2 g00 = gradients2D[hash[h0 + iy0] & gradientsMask2D];
-			float2 g10 = gradients2D[hash[h1 + iy0] & gradientsMask2D];
-			float2 g01 = gradients2D[hash[h0 + iy1] & gradientsMask2D];
-			float2 g11 = gradients2D[hash[h1 + iy1] & gradientsMask2D];
-
-			float v00 = Dot(g00, tx0, ty0);
-			float v10 = Dot(g10, tx1, ty0);
-			float v01 = Dot(g01, tx0, ty1);
-			float v11 = Dot(g11, tx1, ty1);
 		
-			float tx = Smooth(tx0);
-			float ty = Smooth(ty0);
-			
-			return math.lerp(math.lerp(v00, v10, tx),
-							 math.lerp(v01, v11, tx),
-							 ty) * sqr2;
-		}
-
 		private static float PerlinNoise3D(ref float3 point, int tillingPeriod, bool tillingEnabled)
 		{
 			int ix0 = (int)math.floor(point.x);
@@ -527,33 +334,28 @@ namespace DudeiNoise
 							  tz);
 		}
 		
-		[BurstCompile]
-		public static NoiseMethod GetNoiseMethod(NoiseType noiseType, int dimensions)
+		public static NoiseMethod GetNoiseMethod(NoiseType noiseType)
 		{
-			return methods[(int) noiseType][dimensions - 1];
+			return methods[(int) noiseType];
 		}
 		
 		#endregion Perlin noise
 
 		#region Calculation functions
 		
-		[BurstCompile]
 		private static float Smooth (float t) 
 		{
 			return t * t * t * (t * (t * 6f - 15f) + 10f);
 		}
-		
-		[BurstCompile]
+
 		private static float Dot (float2 g, float x, float y) {
 			return g.x * x + g.y * y;
 		}
-		
-		[BurstCompile]
+
 		private static float Dot (float3 g, float x, float y, float z) {
 			return g.x * x + g.y * y + g.z * z;
 		}
 		
-		[BurstCompile]
 		private static int PositiveModulo(int divident, int divisor){
 			int positiveDivident = divident % divisor + divisor;
 			return positiveDivident % divisor;

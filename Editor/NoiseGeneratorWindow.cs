@@ -200,7 +200,8 @@ namespace DudeiNoise.Editor
 			EditorGUILayout.EndVertical();
 			EditorGUILayout.EndScrollView();
 			
-			DrawSaveAndChannelsButtons();
+			DrawChannelsButtons();
+			DrawSaveButton();
 			
 			EditorGUILayout.Space(3);
 		}
@@ -229,7 +230,14 @@ namespace DudeiNoise.Editor
 			EditorGUILayout.Space();
 		}
 
-		private void DrawSaveAndChannelsButtons()
+		private void DrawSaveButton()
+		{
+			if (GUILayout.Button(saveTextureButtonGC))
+			{
+				noiseTexture.SaveTextureAtFolder(settings.exportFolder);
+			}
+		}
+		private void DrawChannelsButtons()
 		{
 			GUILayout.BeginHorizontal();
 			
@@ -254,11 +262,6 @@ namespace DudeiNoise.Editor
 			}
 			
 			GUILayout.EndHorizontal();
-			
-			if (GUILayout.Button(saveTextureButtonGC))
-			{
-				noiseTexture.SaveTextureAtFolder(settings.exportFolder);
-			}
 		}
 		
 		private void ChangeChannel(NoiseTextureChannel channel)
@@ -271,7 +274,7 @@ namespace DudeiNoise.Editor
 		
 		private void RegenerateTextures()
 		{
-			noiseTexture.GenerateNoiseForChanelAsync(settings.GetNoiseSettingsForChannel(activeNoiseTextureChannel), activeNoiseTextureChannel, this , OnNoiseGenerated);
+			noiseTexture.GenerateNoiseForChanelInEditor(settings.GetNoiseSettingsForChannel(activeNoiseTextureChannel), activeNoiseTextureChannel, this , OnNoiseGenerated);
 
 			void OnNoiseGenerated(NoiseTexture texture)
 			{

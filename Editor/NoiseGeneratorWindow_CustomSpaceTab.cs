@@ -35,6 +35,7 @@ namespace DudeiNoise.Editor
 				DrawSpaceSettingsSection();
 				DrawOctavesSettings();
 				DrawCustomPatternsTab();
+				DrawFalloffSection();
 			}
 
 			public bool DrawButton()
@@ -78,12 +79,7 @@ namespace DudeiNoise.Editor
 					GUILayout.BeginHorizontal();
 					EditorGUILayout.PropertyField(owner.noiseTypeSP);				
 					GUILayout.EndHorizontal();
-
-					GUILayout.BeginHorizontal();
-					EditorGUILayout.PropertyField(owner.dimensionsSP);
-					GUILayout.EndHorizontal();
-
-
+					
 					GUILayout.Space(10);
 					GUILayout.EndVertical();
 				}

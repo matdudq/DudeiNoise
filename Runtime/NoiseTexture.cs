@@ -1,31 +1,16 @@
 ﻿using System;
-using DudeiNoise.Utilities;
-using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace DudeiNoise
 {
 	public partial class NoiseTexture
 	{
-		private class NoiseSettingsWithChannel
-		{
-			public NoiseSettings noiseSettings = null;
-			public NoiseTextureChannel textureChannel = default;
-			public Action<NoiseTexture> onCompleted = null;
-		}
-		
 		#region Variables
 		
 		private readonly Texture2D texture = null;
 
-		private NoiseSettingsWithChannel cachedNoiseSettingsWithChannel = null; 
-		
-		private GenerateNoiseMapJob generateNoiseMapJob;
-		
-		private bool isJobCompleted = true;
+		private readonly NoiseTextureJobManager noiseTextureJobManager = null;
 		
 		#endregion Variables
 
@@ -47,27 +32,7 @@ namespace DudeiNoise
 			}
 		}
 		
-		private NativeArray<Color> Pixels
-		{
-			get
-			{
-				return texture.GetRawTextureData<Color>();
-			}
-		}
-		
 		#endregion Properties
-
-		#region Operator overloads
-
-		public Color this[int key]
-		{
-			get
-			{
-				return Pixels[key];
-			}
-		}
-
-		#endregion Operator overloads
 		
 		#region Constructor
 		
@@ -80,141 +45,41 @@ namespace DudeiNoise
 				wrapMode = TextureWrapMode.Clamp
 			};
 			
-			CreateJobs();
+			noiseTextureJobManager = new NoiseTextureJobManager(texture.GetRawTextureData<Color>(), resolution);
 		}
 		
 		#endregion
 
 		#region Public methods
-		
-		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, MonoBehaviour context, Action<NoiseTexture> onComplete = null)
-        {
-	        if (!isJobCompleted)
-	        {
-		        cachedNoiseSettingsWithChannel = new NoiseSettingsWithChannel()
-		        {
-			        noiseSettings = noiseSettings,
-			        textureChannel = noiseChannel,
-			        onCompleted = onComplete
-		        };
-		        return;
-	        }
-			
-	        UpdateJobData(noiseSettings, noiseChannel);
 
-	        int pixelsCount = Pixels.Length;
-	        int batchCount = pixelsCount / 6;
-	        
-	        isJobCompleted = false;
-	        generateNoiseMapJob.ScheduleAsync(pixelsCount, batchCount, context, OnCompleteWrapped);
-			
-	        void OnCompleteWrapped(GenerateNoiseMapJob noiseMapJob)
-	        {
-		        texture.Apply();
-		        onComplete?.Invoke(this);
-		        isJobCompleted = true;
-				
-		        if (cachedNoiseSettingsWithChannel != null)
-		        {
-			        NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
-			        NoiseTextureChannel cachedTextureChannel = cachedNoiseSettingsWithChannel.textureChannel;
-			        Action<NoiseTexture> cachedOnComplete = cachedNoiseSettingsWithChannel.onCompleted;
-					
-			        cachedNoiseSettingsWithChannel = null;
-
-			        GenerateNoiseForChanelAsync(cachedNoiseSettings, cachedTextureChannel, context, cachedOnComplete);
-		        }
-	        }
-        }
-#if UNITY_EDITOR
-		public void GenerateNoiseForChanelAsync(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, Object context, Action<NoiseTexture> onComplete = null)
+		public void GenerateNoiseForChanel(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel, MonoBehaviour context, Action<NoiseTexture> onComplete = null)
 		{
-			if (!isJobCompleted)
-			{
-				cachedNoiseSettingsWithChannel = new NoiseSettingsWithChannel()
-				{
-					noiseSettings = noiseSettings,
-					textureChannel = noiseChannel,
-					onCompleted = onComplete
-				};
-				return;
-			}
-			
-			UpdateJobData(noiseSettings, noiseChannel);
+			noiseTextureJobManager.GenerateNoiseForChanelAsync(noiseSettings, noiseChannel, context, OnCompleteWrapped);
 
-			int pixelsCount = Pixels.Length;
-			int batchCount = pixelsCount / 6;
-            
-			generateNoiseMapJob.ScheduleEditorAsync(pixelsCount, batchCount, context, OnCompleteWrapped);
-			isJobCompleted = false;
-			
-			void OnCompleteWrapped(GenerateNoiseMapJob noiseMapJob)
+			void OnCompleteWrapped()
 			{
 				texture.Apply();
 				onComplete?.Invoke(this);
-				isJobCompleted = true;
-				
-				if (cachedNoiseSettingsWithChannel != null)
-				{
-					NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
-					NoiseTextureChannel cachedTextureChannel = cachedNoiseSettingsWithChannel.textureChannel;
-					Action<NoiseTexture> cachedOnComplete = cachedNoiseSettingsWithChannel.onCompleted;
-					
-					cachedNoiseSettingsWithChannel = null;
-
-					GenerateNoiseForChanelAsync(cachedNoiseSettings, cachedTextureChannel, context, cachedOnComplete);
-				}
 			}
-		}
-		#endif
-		
-		public void GenerateNoiseForChanelImmediately(NoiseSettings noiseSettings, NoiseTextureChannel noiseChannel)
-		{
-			UpdateJobData(noiseSettings, noiseChannel);
-			
-			int pixelsCount = Pixels.Length;
-			int batchCount = pixelsCount / 6;
-			
-			JobHandle handle = generateNoiseMapJob.Schedule(pixelsCount, batchCount);
-			handle.Complete();
-			
-			texture.Apply();
 		}
 		
 		#endregion Public methods
 
-		#region Private methods
+		#region Editor methods
 
-		private void CreateJobs()
+
+		public void GenerateNoiseForChanelInEditor(NoiseSettings noiseSettings, NoiseTextureChannel  noiseChannel, UnityEngine.Object context, Action<NoiseTexture> onComplete = null)
 		{
-			generateNoiseMapJob = new GenerateNoiseMapJob()
+			noiseTextureJobManager.GenerateNoiseForChanelAsync(noiseSettings, noiseChannel, context, OnCompleteWrapped);
+
+			void OnCompleteWrapped()
 			{
-				noiseTextureData = Pixels
-			};
+				texture.Apply();
+				onComplete?.Invoke(this);
+			}
+
 		}
 
-		private void UpdateJobData(NoiseSettings noiseSettings, NoiseTextureChannel noiseTextureChannel)
-		{
-			generateNoiseMapJob.noiseType = noiseSettings.noiseType;
-			generateNoiseMapJob.channelToOverride = noiseTextureChannel;
-			generateNoiseMapJob.dimensions = noiseSettings.dimensions;
-			generateNoiseMapJob.positionOffset = noiseSettings.positionOffset;
-			generateNoiseMapJob.rotationOffset= noiseSettings.rotationOffset;
-			generateNoiseMapJob.scaleOffset= noiseSettings.scaleOffset;
-			generateNoiseMapJob.tillingPeriod = noiseSettings.tillingPeriod;
-			generateNoiseMapJob.tillingEnabled = noiseSettings.tillingEnabled;
-			generateNoiseMapJob.octaves = noiseSettings.octaves;
-			generateNoiseMapJob.lacunarity = noiseSettings.lacunarity;
-			generateNoiseMapJob.persistence = noiseSettings.persistence;
-			generateNoiseMapJob.woodPatternMultiplier = noiseSettings.woodPatternMultiplier;
-			generateNoiseMapJob.turbulenceEnabled = noiseSettings.turbulenceEnabled;
-			generateNoiseMapJob.falloffEnabled = noiseSettings.falloffEnabled;
-			generateNoiseMapJob.falloffShift = noiseSettings.falloffShift;
-			generateNoiseMapJob.falloffDensity = noiseSettings.falloffDensity;
-			generateNoiseMapJob.resolution = Resolution;
-			generateNoiseMapJob.noiseTextureData = Pixels;
-		}
-		
-		#endregion Private methodsS
+		#endregion Editor methods
 	}
 }

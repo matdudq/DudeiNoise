@@ -81,10 +81,6 @@ namespace DudeiNoise.Editor
 					GUILayout.Space(10);
 					
 					GUILayout.BeginHorizontal();
-					EditorGUILayout.PropertyField(owner.dimensionsSP);
-					GUILayout.EndHorizontal();
-
-					GUILayout.BeginHorizontal();
 					EditorGUILayout.PropertyField(owner.noiseTypeSP);
 					GUILayout.EndHorizontal();
 					

@@ -36,25 +36,7 @@ namespace DudeiNoise
                 }
             }
         }
-
-        public static ColorWriteMask ToColorWriteMask(this NoiseTextureChannel textureChannel)
-        {
-            switch (textureChannel)
-            {
-                case NoiseTextureChannel.RED:
-                    return ColorWriteMask.Red;
-                case NoiseTextureChannel.GREEN:
-                    return ColorWriteMask.Green;
-                case NoiseTextureChannel.BLUE:
-                    return ColorWriteMask.Blue;
-                case NoiseTextureChannel.ALPHA:
-                    return ColorWriteMask.Alpha;
-            }
-
-            Debug.LogError("Wrong Noise texture Channel value, cannot to convert to mask!");
-            return ColorWriteMask.All;
-        }
-
+        
         #endregion Public methods
     }
 }

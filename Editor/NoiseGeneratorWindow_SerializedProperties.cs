@@ -23,8 +23,7 @@ namespace DudeiNoise.Editor
         private SerializedProperty scaleOffsetSP    = null;
 			
         private SerializedProperty tillingEnabledSP = null;
-
-        private SerializedProperty dimensionsSP            = null;
+		
         private SerializedProperty octavesSP               = null;
         private SerializedProperty lacunaritySP            = null;
         private SerializedProperty persistenceSP           = null;
@@ -52,8 +51,7 @@ namespace DudeiNoise.Editor
 	        rotationOffsetSP = CurrentNoiseSettingsSP.FindPropertyRelative("rotationOffset");
 	        scaleOffsetSP = CurrentNoiseSettingsSP.FindPropertyRelative("scaleOffset");
 	        tillingEnabledSP = CurrentNoiseSettingsSP.FindPropertyRelative("tillingEnabled");
-	        dimensionsSP = CurrentNoiseSettingsSP.FindPropertyRelative("dimensions");
-	        octavesSP = CurrentNoiseSettingsSP.FindPropertyRelative("octaves");
+			octavesSP = CurrentNoiseSettingsSP.FindPropertyRelative("octaves");
 	        lacunaritySP = CurrentNoiseSettingsSP.FindPropertyRelative("lacunarity");
 	        persistenceSP = CurrentNoiseSettingsSP.FindPropertyRelative("persistence");
 	        woodPatternMultiplierSP = CurrentNoiseSettingsSP.FindPropertyRelative("woodPatternMultiplier");
