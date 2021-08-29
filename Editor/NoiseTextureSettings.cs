@@ -1,7 +1,7 @@
 ﻿using DudeiNoise.Utilities;
 using UnityEngine;
 
-namespace DudeiNoise
+namespace DudeiNoise.Editor
 {
 	[CreateAssetMenu(fileName = nameof(NoiseTextureSettings), menuName = "Noise/" + nameof(NoiseTextureSettings), order = 1)]
 	public class NoiseTextureSettings : ScriptableObject
@@ -9,7 +9,7 @@ namespace DudeiNoise
 		#region Variables
 		
 		[Tooltip("Folder where textures will be saved.")]
-		public FolderReference exportFolder = new FolderReference();
+		public FolderReference exportFolder = null;
 
 		[Range(4,2048), Tooltip("Resolution of rendered texture.")]
 		public int resolution = 256;
@@ -24,7 +24,7 @@ namespace DudeiNoise
 		public NoiseSettings blueChannelNoiseSettings = null;
 		
 		public NoiseSettings alphaChannelNoiseSettings = null;
-
+		private int cod;
 		#endregion Variables
 
 		#region Public methods

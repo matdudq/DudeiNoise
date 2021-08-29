@@ -18,12 +18,20 @@ namespace DudeiNoise.Editor
 		
 		private NoiseTexture noiseTexture = null;
 		
-		private Dictionary<Type,INoiseGeneratorModeTab> tabs = null;
-		private INoiseGeneratorModeTab activeTab = null;
+		private Dictionary<Type,INoiseGeneratorTab> tabs = null;
+		private INoiseGeneratorTab activeTab = null;
 		
 		private NoiseTextureChannel activeNoiseTextureChannel = NoiseTextureChannel.ALPHA;
 		
 		private Vector2 scrollPos = Vector2.zero;
+		
+		private float frequencyValue = 0;
+			
+		private bool isNoiseTypeSectionFolded = false;
+		private bool isSpaceSectionFolded = false;
+		private bool isLayersSectionFolded = false;
+		private bool isCustomPatternsSectionFolded = false;
+		private bool isFalloffSectionFolded = false;
 		
 		#endregion Variables
 
@@ -133,7 +141,7 @@ namespace DudeiNoise.Editor
 			
 			ChangeChannel(NoiseTextureChannel.RED);
 			
-			tabs = new Dictionary<Type, INoiseGeneratorModeTab>()
+			tabs = new Dictionary<Type, INoiseGeneratorTab>()
 			{
 				{typeof(CustomSpaceTab), new CustomSpaceTab(this)},
 				{typeof(TillingTab), new TillingTab(this)}
@@ -165,7 +173,7 @@ namespace DudeiNoise.Editor
 			activeTab?.OnTabEnter();
 		}
 		
-		private void SwitchTab(INoiseGeneratorModeTab tab)
+		private void SwitchTab(INoiseGeneratorTab tab)
 		{
 			if (activeTab == tab)
 			{
@@ -189,7 +197,7 @@ namespace DudeiNoise.Editor
 			
 			textureSettingsEditor.DrawCustomInspector();
 
-			DrawWindowTabs();
+			DrawWindowSections();
 		
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -206,28 +214,17 @@ namespace DudeiNoise.Editor
 			EditorGUILayout.Space(3);
 		}
 
-		private void DrawWindowTabs()
+		private void DrawWindowSections()
 		{
 			GUILayout.BeginVertical(sectionStyle);
-
-			GUILayout.BeginHorizontal();
 			
-			foreach (INoiseGeneratorModeTab tab in tabs.Values)
-			{
-				if (tab.DrawButton())
-				{
-					SwitchTab(tab);
-				}
-			}
+			DrawNoiseTypeSection();
+			DrawSpaceSettingsSection();
+			DrawLayersSettingsSection();
+			DrawCustomPatternsSection();
+			DrawFalloffSection();
 			
-			GUILayout.EndHorizontal();
-
-			activeTab.DrawInspector();
-			
-			GUILayout.FlexibleSpace();
 			EditorGUILayout.EndVertical();
-
-			EditorGUILayout.Space();
 		}
 
 		private void DrawSaveButton()
@@ -287,6 +284,183 @@ namespace DudeiNoise.Editor
 		{
 			textureSettingsEditor.serializedObject.ApplyModifiedProperties();
 			EditorUtility.SetDirty(settings);
+		}
+		
+		private void DrawNoiseTypeSection()
+		{
+			isNoiseTypeSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isNoiseTypeSectionFolded, noiseTypeSectionHeaderGC);
+			
+			if (isNoiseTypeSectionFolded)
+			{
+				GUILayout.BeginVertical(sectionStyle);
+				GUILayout.Space(10);
+				
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(noiseTypeSP);
+				GUILayout.EndHorizontal();
+				
+				GUILayout.Space(10);
+				GUILayout.EndVertical();
+			}
+
+			EditorGUILayout.EndFoldoutHeaderGroup();
+		}
+
+		private void DrawSpaceSettingsSection()
+		{
+			isSpaceSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isSpaceSectionFolded, spaceSectionHeaderGC);
+
+			if (isSpaceSectionFolded)
+			{
+				GUILayout.BeginVertical();
+				
+				GUILayout.BeginHorizontal();
+			
+				foreach (INoiseGeneratorTab tab in tabs.Values)
+				{
+					if (tab.DrawButton())
+					{
+						SwitchTab(tab);
+					}
+				}
+			
+				GUILayout.EndHorizontal();
+				
+				GUILayout.EndVertical();
+				
+				GUILayout.BeginVertical();
+
+				activeTab.DrawTabContent();
+				
+				GUILayout.EndVertical();
+			}
+				
+			EditorGUILayout.EndFoldoutHeaderGroup();
+		}
+
+		private void DrawCustomSpaceSectionContent()
+		{
+			GUILayout.BeginVertical(sectionStyle);
+			GUILayout.Space(10);
+					
+			GUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(positionOffsetSP);
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(rotationOffsetSP);
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(scaleOffsetSP);
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(10);
+			GUILayout.EndVertical();
+		}
+		
+		private void DrawTillingSectionContent()
+		{
+			GUILayout.BeginVertical(sectionStyle);
+			GUILayout.Space(10);
+			
+			GUILayout.BeginHorizontal();
+			
+			frequencyValue = scaleOffsetSP.vector3Value.x;
+			frequencyValue = Mathf.Max(EditorGUILayout.IntField("Frequency", (int)frequencyValue),1);
+
+			tillingPeriodSP.intValue = Mathf.RoundToInt(frequencyValue);
+			float halfOfFrequency = frequencyValue * 0.5f;
+			positionOffsetSP.vector3Value = new Vector3(halfOfFrequency, halfOfFrequency, halfOfFrequency);
+			
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal();
+			scaleOffsetSP.vector3Value = frequencyValue * Vector3.one;
+			GUILayout.EndHorizontal();
+
+			GUILayout.Space(10);
+			GUILayout.EndVertical();
+		}
+
+		private void DrawLayersSettingsSection()
+		{
+			isLayersSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isLayersSectionFolded, octavesSectionHeaderGC);
+			
+			if (isLayersSectionFolded)
+			{
+				GUILayout.BeginVertical(sectionStyle);
+				GUILayout.Space(10);
+				
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(octavesSP);
+				GUILayout.EndHorizontal();
+
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(lacunaritySP);
+				GUILayout.EndHorizontal();
+				
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(persistenceSP);
+				GUILayout.EndHorizontal();
+
+				GUILayout.Space(10);
+				GUILayout.EndVertical();
+			}
+			
+			EditorGUILayout.EndFoldoutHeaderGroup();
+		}
+
+		private void DrawCustomPatternsSection()
+		{
+			isCustomPatternsSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isCustomPatternsSectionFolded, customPatternsSectionHeaderGC);
+
+			if (isCustomPatternsSectionFolded)
+			{
+				GUILayout.BeginVertical(sectionStyle);
+				GUILayout.Space(10);
+                    
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(woodPatternMultiplierSP);
+				GUILayout.EndHorizontal();
+                    
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(turbulenceSP);
+				GUILayout.EndHorizontal();
+
+				GUILayout.Space(10);
+				GUILayout.EndVertical();
+			}
+                
+			EditorGUILayout.EndFoldoutHeaderGroup();
+		}
+		
+		private void DrawFalloffSection()
+		{
+			isFalloffSectionFolded = EditorGUILayout.BeginFoldoutHeaderGroup(isFalloffSectionFolded, falloffSectionHeaderGC);
+			
+			if (isFalloffSectionFolded)
+			{
+				GUILayout.BeginVertical(sectionStyle);
+				GUILayout.Space(10);
+				
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(falloffEnabledSP);
+				GUILayout.EndHorizontal();
+
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(falloffParameterSP);
+				GUILayout.EndHorizontal();
+				
+				GUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(falloffShiftSP);
+				GUILayout.EndHorizontal();
+				
+				GUILayout.Space(10);
+				GUILayout.EndVertical();
+			}
+			
+			EditorGUILayout.EndFoldoutHeaderGroup();
 		}
 		
 		#endregion Private methods

@@ -3,11 +3,11 @@ namespace DudeiNoise.Editor
 {
 	public partial class NoiseGeneratorWindow 
 	{
-		private interface INoiseGeneratorModeTab
+		private interface INoiseGeneratorTab
 		{
 			void OnTabEnter();
 			
-			void DrawInspector();
+			void DrawTabContent();
 
 			bool DrawButton();
 		}

@@ -99,6 +99,7 @@ namespace DudeiNoise.Editor.Utilities
                     {
                         folderAsset = reference;
                         guidSP.stringValue = AssetDatabase.AssetPathToGUID(path);
+                        property.serializedObject.ApplyModifiedProperties();
                     }
 
                     ev.Use();

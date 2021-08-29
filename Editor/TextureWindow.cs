@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -52,7 +53,7 @@ namespace DudeiNoise.Editor
 		#endregion Unity methods
 		
 		#region Public methods
-
+		
 		public static TextureWindow GetWindow(Vector2 position, string name, NoiseTexture noiseTexture)
 		{
 			TextureWindow window = GetWindow<TextureWindow>(name);

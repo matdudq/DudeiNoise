@@ -47,15 +47,26 @@ namespace DudeiNoise.Utilities
         /// Path to the folder.
         /// Warning : this is EDITOR ONLY!
         /// </summary>
-        public string Path => AssetDatabase.GUIDToAssetPath(guid);
-
+        public string Path
+        {
+            get
+            {
+                return AssetDatabase.GUIDToAssetPath(guid);
+            }
+        }
 
         /// <summary>
         /// Asset of the folder.
         /// Warning : this is EDITOR ONLY!
         /// </summary>
-        public DefaultAsset Asset => AssetDatabase.LoadAssetAtPath<DefaultAsset>(Path);
-#endif
+        public DefaultAsset Asset
+        {
+            get
+            {
+                return AssetDatabase.LoadAssetAtPath<DefaultAsset>(Path);
+            }
+        }
+        #endif
 
         #endregion Properties
     }

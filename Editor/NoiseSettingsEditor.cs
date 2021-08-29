@@ -173,7 +173,6 @@ namespace DudeiNoise.Editor
 		}
 
 		#endregion Private methods
-		
 	}
 }
 #endif
