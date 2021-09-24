@@ -70,7 +70,7 @@ namespace DudeiNoise
 		#endregion
 		
 		#region Public methods
-		
+		 
 		public void Initialize()
 		{
 			if (hash.IsCreated || gradients3D.IsCreated)
@@ -142,6 +142,12 @@ namespace DudeiNoise
 			gradients3D = new NativeArray<float3>(gradient3DArray, Allocator.Persistent);
 
 			gradientsMask3D = 15;
+		}
+
+		public void Dispose()
+		{
+			gradients3D.Dispose();
+			hash.Dispose();
 		}
 		
 		#endregion Public methods

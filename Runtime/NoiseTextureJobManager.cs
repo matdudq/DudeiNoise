@@ -81,7 +81,9 @@ namespace DudeiNoise
 				onComplete?.Invoke();
 		        isJobCompleted = true;
 				
-		        if (cachedNoiseSettingsWithChannel != null)
+				generateNoiseMapJobData.Dispose();
+
+				if (cachedNoiseSettingsWithChannel != null)
 		        {
 			        NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
 			        NoiseTextureChannel cachedTextureChannel = cachedNoiseSettingsWithChannel.textureChannel;
@@ -258,6 +260,8 @@ namespace DudeiNoise
 				onComplete?.Invoke();
 				isJobCompleted = true;
 				
+				generateNoiseMapJobData.Dispose();
+
 				if (cachedNoiseSettingsWithChannel != null)
 				{
 					NoiseSettings cachedNoiseSettings = cachedNoiseSettingsWithChannel.noiseSettings;
