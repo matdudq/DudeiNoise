@@ -11,6 +11,7 @@ namespace DudeiNoise
     {
         #region Public methods
 
+#if UNITY_EDITOR
         public static void SaveTextureAtFolder(this NoiseTexture noiseTexture, FolderReference folder)
         {
             if (!folder.IsAssigned)
@@ -36,7 +37,8 @@ namespace DudeiNoise
                 }
             }
         }
-        
+#endif
+
         #endregion Public methods
     }
 }

@@ -89,6 +89,7 @@ namespace DudeiNoise
 
 		#region Editor methods
 
+#if UNITY_EDITOR
 		public void GenerateNoiseForChanelInEditor(NoiseSettings noiseSettings, NoiseTextureChannel  noiseChannel, UnityEngine.Object context, Action<NoiseTexture> onComplete = null)
 		{
 			noiseTextureJobManager.GenerateNoiseForChanelAsync(noiseSettings, noiseChannel, context, OnCompleteWrapped);
@@ -100,6 +101,8 @@ namespace DudeiNoise
 			}
 
 		}
+#endif
+	
 
 		#endregion Editor methods
 	}

@@ -1,6 +1,10 @@
 ﻿using DudeiNoise.Editor;
 using UnityEditor;
+
+#if UNITY_EDITOR
 using UnityEditor.Callbacks;
+
+#endif
 
 namespace DudeiNoise
 {
