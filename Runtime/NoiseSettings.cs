@@ -65,7 +65,7 @@ namespace DudeiNoise
 				persistence = this.persistence,
 				woodPatternMultiplier = this.woodPatternMultiplier,
 				turbulenceEnabled = this.turbulenceEnabled,
-				falloffEnabled = false,
+				falloffEnabled = this.falloffEnabled,
 				falloffShift = this.falloffShift,
 				falloffDensity = this.falloffDensity
 			};
