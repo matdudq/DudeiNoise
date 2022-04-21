@@ -30,7 +30,8 @@ namespace DudeiNoise
 		private GenerateDefaultNoiseMapJob defaultNoiseMapJob;
 		private GenerateValueNoiseMapJob valueNoiseMapJob; 
 		private GeneratePerlinNoiseMapJob perlinNoiseMapJob;
-
+		private GenerateWorleyNoiseMapJob worleyNoiseMapJob;
+		
 		private NativeArray<Color> texturePixels;
 		private int resolution;
 
@@ -116,6 +117,9 @@ namespace DudeiNoise
 				case NoiseType.Perlin:
 					return perlinNoiseMapJob.ScheduleAsync(pixelsCount, batchCount, context, onComplete);
 					break;
+				case NoiseType.Worley:
+					return worleyNoiseMapJob.ScheduleAsync(pixelsCount, batchCount, context, onComplete);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(noiseType), noiseType, null);
 			}
@@ -134,6 +138,11 @@ namespace DudeiNoise
 			}; 
 			
 			perlinNoiseMapJob= new GeneratePerlinNoiseMapJob()
+			{
+				noiseTextureData = pixels
+			};
+			
+			worleyNoiseMapJob = new GenerateWorleyNoiseMapJob()
 			{
 				noiseTextureData = pixels
 			};
@@ -168,6 +177,9 @@ namespace DudeiNoise
 					break;
 				case NoiseType.Perlin:
 					perlinNoiseMapJob.data = generateNoiseMapJobData;
+					break;
+				case NoiseType.Worley:
+					worleyNoiseMapJob.data = generateNoiseMapJobData;
 					break;
 			}
 		}
@@ -290,6 +302,9 @@ namespace DudeiNoise
 					break;
 				case NoiseType.Perlin:
 					perlinNoiseMapJob.ScheduleEditorAsync(pixelsCount, batchCount, context, onComplete);
+					break;
+				case NoiseType.Worley:
+					worleyNoiseMapJob.ScheduleEditorAsync(pixelsCount, batchCount, context, onComplete);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(noiseType), noiseType, null);

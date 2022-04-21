@@ -58,6 +58,7 @@ namespace DudeiNoise.Editor.Utilities
                     path = "Assets" + path.Substring(Application.dataPath.Length);
                     folderAsset = AssetDatabase.LoadAssetAtPath(path, typeof(DefaultAsset));
                     guidSP.stringValue = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(folderAsset));
+                    property.serializedObject.ApplyModifiedProperties();
                 }
                 else
                 {

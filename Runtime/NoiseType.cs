@@ -6,7 +6,8 @@
 
 		Default,
 		Value,
-		Perlin
+		Perlin,
+		Worley
 
 		#endregion Values
 	}

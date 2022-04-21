@@ -34,7 +34,7 @@ Tool was created to:
 - Separate window for Noise Editor, which consists of Noise texture chanel preview and editor itself.
 - Possibility to define noises with combined patterns and settings.
 - Possibility to define 1/2/3-dimentional noises.
-- Possibility to define noises of default, value and perlin type.
+- Possibility to define noises of default, value, perlin and worley type.
 - Possibility to manipulate of noise space (position/rotation/frequency).
 - Possibility to define noise with custom octaves settings.
 - Possibility to add custom patterns like wood or turbulence.
