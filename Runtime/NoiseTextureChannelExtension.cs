@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using DudeiNoise.Utilities;
+﻿using System.IO;
+using UNG.Utilities;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 
-namespace DudeiNoise
+namespace UNG
 {
     public static class NoiseTextureExtension
     {

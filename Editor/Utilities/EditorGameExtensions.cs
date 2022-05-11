@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using System.Runtime.CompilerServices;
 
-namespace DudeiNoise.Editor.Utilities
+namespace UNG.Editor.Utilities
 {
     public static class EditorGameExtensions
     {

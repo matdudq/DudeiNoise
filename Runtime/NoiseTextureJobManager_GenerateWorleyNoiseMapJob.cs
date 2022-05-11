@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace DudeiNoise
+namespace UNG
 {
     internal partial class NoiseTextureJobManager
     {

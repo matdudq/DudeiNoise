@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 		[CustomEditor(typeof(NoiseTextureSettings))]
     	public class NoiseTextureSettingsEditor : UnityEditor.Editor

@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 	public partial class NoiseGeneratorWindow 
 	{

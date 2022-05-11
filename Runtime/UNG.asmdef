@@ -1,8 +1,10 @@
 {
-    "name": "DudeiNoise.Editor",
+    "name": "UNG",
     "rootNamespace": "",
     "references": [
-        "GUID:61624ed80ba2d8843bee0ad08982ed8c"
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:478a2357cc57436488a56e564b08d223"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

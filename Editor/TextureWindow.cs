@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 	public class TextureWindow : EditorWindow
 	{

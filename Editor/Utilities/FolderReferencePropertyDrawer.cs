@@ -1,10 +1,10 @@
 #if UNITY_EDITOR
 using System.IO;
-using DudeiNoise.Utilities;
+using UNG.Utilities;
 using UnityEngine;
 using UnityEditor;
 
-namespace DudeiNoise.Editor.Utilities
+namespace UNG.Editor.Utilities
 {
     /// <summary>
     /// Custom property drawer that allows us to use 

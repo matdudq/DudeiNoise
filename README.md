@@ -1,15 +1,13 @@
-# Dudei Noise
-[![Unity 2019.3+](https://img.shields.io/badge/unity-2020.1%2B-blue.svg)](https://unity3d.com/get-unity/download) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+# Ultimate Noise Generator
+[![Unity 2019.3+](https://img.shields.io/badge/unity-2020.1%2B-blue.svg)](https://unity3d.com/get-unity/download)
 ## Table Of Contents
 
 - [Introduction](#introduction)
 - [Features](#features)
 - [System Requirements](#system-requirements)
 - [Dependencies](#dependencies)
-- [Installation](#installation)
 - [Overview](#overview)
-	- [Dudei Noise Window](#dudei-noise-window)
+	- [Ultimate Noise Generator Window](#ultimate-noise-generator-window)
 	- [Texture Settings](#texture-settings)
 	- [Space Mode Toolbar](#space-mode-toolbar)
 	- [Noise Type Settings](#noise-type-settings)
@@ -23,7 +21,7 @@
 
 ## Introduction <a name="introduction"></a>
 
-**Unity Dudei Noise Editor** is an open-source tool for creating and defining custom noise textures. 
+**Ultimate Noise Generator** is an open-source tool for creating and defining custom noise textures. 
 
 Tool was created to:
 - simplify process of getting desired custom noises inside unity editor.
@@ -41,11 +39,10 @@ Tool was created to:
 - Possibility to add falloff map to noise.
 - Possibility to save one noise map on each texture chanel.
 - Possibility to export texture to png file. 
-- Library that allows us to generate noises runtime on single thread as well as multi-threaded with use of JOBS system.
 
 ## System Requirements <a name="system-requirements"></a>
 
-Unity 2019.3 or newer.
+Unity 2030.1 or newer.
 
 ## Dependencies <a name="dependencies"></a>
 
@@ -53,18 +50,9 @@ Unity 2019.3 or newer.
 
 [Unity.Mathematics](https://docs.unity3d.com/Packages/com.unity.mathematics@1.0/manual/index.html)
 
-## Installation <a name="installation"></a>
-
-1 The package is available in Unity Package Manager via git URL. Follow up [this](https://docs.unity3d.com/Manual/upm-ui-giturl.html) Unity page for detailed instructions. Git URL:
-```
-https://github.com/matdudq/DudeiNoise
-```
-2 You can also install Dudei Noise by simply downloading repository zip file and copying Assets folder content to your Unity project.
-3 You can also download tool as sub-module repository.
-
 ## Overview <a name="overview"></a>
 
-### Dudei Noise Window <a name="dudei-noise-window"></a>
+### Ultimate Noise Generator Window <a name="#ultimate-noise-generator-window"></a>
 
 Editor window can be opened by going to `Tools->Noise Generator Window` on the Unity toolbar. Noise texture preview for one individual chanel will also show when enabling editor. Windows can be manipulated separately. Mainly we will be working with generator editor which allows us to define our noise behaviour.
 
@@ -117,7 +105,4 @@ It is control panel of falloff mask which allows us to create blurred borders of
 Switches that allows you to swap currently working chanel and save the texture.
 
  <img src="https://i.imgur.com/EooqKp7.png">
- 
- ## License <a name="license"></a>
- 
-[MIT](https://opensource.org/licenses/MIT)
+

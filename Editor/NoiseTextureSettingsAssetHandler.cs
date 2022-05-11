@@ -1,4 +1,4 @@
-﻿using DudeiNoise.Editor;
+﻿using UNG.Editor;
 using UnityEditor;
 
 #if UNITY_EDITOR
@@ -6,7 +6,7 @@ using UnityEditor.Callbacks;
 
 #endif
 
-namespace DudeiNoise
+namespace UNG
 {
     internal static class NoiseTextureSettingsAssetHandler
     {

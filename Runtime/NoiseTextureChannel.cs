@@ -1,4 +1,4 @@
-﻿namespace DudeiNoise
+﻿namespace UNG
 {
 	public enum NoiseTextureChannel
 	{

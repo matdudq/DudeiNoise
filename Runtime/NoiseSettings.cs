@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace DudeiNoise
+namespace UNG
 {
 	[Serializable]
 	public class NoiseSettings
@@ -9,14 +9,14 @@ namespace DudeiNoise
 		#region Variables
 		
 		[Tooltip("Defines method of generating.")]
-		public NoiseType noiseType = NoiseType.Default;
+		public NoiseType noiseType = NoiseType.Perlin;
 		
 		[Tooltip("You can move though noise surface by that. Position offset in 'noise-space'.")]
 		public Vector3 positionOffset = Vector3.zero;
 		[Tooltip("You can rotate noise surface by that to get more interesting results. Rotation offset in 'noise-space'.")]
 		public Vector3 rotationOffset = Vector3.zero;
 		[Tooltip("Manages frequency of noise, you can scale noise space by that.")]
-		public Vector3 scaleOffset = Vector3.one;
+		public Vector3 scaleOffset = Vector3.one * 10;
 
 		[Tooltip("Means region on texture where noise tilling will not happend."), Range(1,256)]
 		public int tillingPeriod = 10;

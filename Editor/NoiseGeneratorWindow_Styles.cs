@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 	public partial class NoiseGeneratorWindow
 	{

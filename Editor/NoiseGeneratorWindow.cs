@@ -1,11 +1,11 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using DudeiNoise.Editor.Utilities;
+using UNG.Editor.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 	public partial class NoiseGeneratorWindow : EditorWindow
 	{

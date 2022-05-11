@@ -7,9 +7,9 @@ using Unity.Jobs;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace DudeiNoise.Utilities
+namespace UNG.Utilities
 {
-    public static class JobsUtility
+    internal static class JobsUtility
     {
         #region Public methods
 
@@ -48,5 +48,4 @@ namespace DudeiNoise.Utilities
 
         #endregion Editor methods
     }
-
 }

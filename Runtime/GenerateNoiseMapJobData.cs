@@ -1,7 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Mathematics;
 
-namespace DudeiNoise
+namespace UNG
 {
 	public struct GenerateNoiseMapJobData
 	{

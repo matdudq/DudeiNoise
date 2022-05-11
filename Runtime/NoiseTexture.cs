@@ -2,9 +2,9 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace DudeiNoise
+namespace UNG
 {
-	public partial class NoiseTexture
+	public class NoiseTexture
 	{
 		#region Variables
 		

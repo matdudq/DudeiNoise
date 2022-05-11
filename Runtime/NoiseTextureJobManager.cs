@@ -1,12 +1,12 @@
 ﻿using System;
-using DudeiNoise.Utilities;
+using UNG.Utilities;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace DudeiNoise
+namespace UNG
 {
 	internal partial class NoiseTextureJobManager
 	{

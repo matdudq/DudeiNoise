@@ -1,7 +1,7 @@
-﻿using DudeiNoise.Utilities;
+﻿using UNG.Utilities;
 using UnityEngine;
 
-namespace DudeiNoise.Editor
+namespace UNG.Editor
 {
 	[CreateAssetMenu(fileName = nameof(NoiseTextureSettings), menuName = "Noise/" + nameof(NoiseTextureSettings), order = 1)]
 	public class NoiseTextureSettings : ScriptableObject
